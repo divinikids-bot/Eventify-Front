@@ -68,7 +68,7 @@ export default function PopularEvents() {
         {popularEvents.map((event) => (
           <SwiperSlide key={event.id}>
             <div className="h-full px-2"></div>
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full border border-gray-200 hover:shadow-lg transition duration-300">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full border border-gray-300 hover:shadow-lg transition duration-300">
               <div className="relative w-full h-[200px]"> {/* Dulu 200px, sekarang 160px */}
                 <Image
                   src={event.image}
