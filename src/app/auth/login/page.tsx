@@ -1,19 +1,47 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react'; // <-- Tambahin import icon
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react"; // <-- Tambahin import icon
+
+import { toast, Toaster } from "sonner";
+import { useLogin } from "@/utils/useLogin";
+import { getAuthCookie } from "@/app/lib/cookies";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { login } = useLogin();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // <-- Buat toggle lihat password
 
   const toggleShowPassword = () => setShowPassword(!showPassword);
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const result = await login(email, password);
+    const authorize = getAuthCookie();
+    // console.log(">>>>>>>>>>", authorize);
+
+    if (result.success) {
+      toast.success(result.message as string);
+      if (authorize.role === "USER") {
+        window.location.href = "/pages/dashboard/user";
+      } else {
+        window.location.href = "/";
+      }
+    } else {
+      toast.error(
+        typeof result.message === "string"
+          ? result.message
+          : JSON.stringify(result.message)
+      );
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <Toaster richColors position="top-center" />
       <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 items-center gap-8">
         {/* Kiri: Ilustrasi + Teks */}
         <div className="text-center md:text-left flex flex-col items-center md:items-start gap-4">
@@ -28,23 +56,32 @@ export default function LoginPage() {
             Tidak lagi ketinggalan event dan konser favoritmu
           </h2>
           <p className="text-xl text-center text-gray-600 font-semibold max-w-md">
-            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di Eventify.
+            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di
+            Eventify.
           </p>
         </div>
 
         {/* Kanan: Form Login */}
         <div className="bg-white rounded-xl shadow-md p-8 w-full max-w-md mx-auto border">
-          <h3 className="text-xl text-gray-600 font-semibold mb-2">Masuk ke akunmu</h3>
+          <h3 className="text-xl text-gray-600 font-semibold mb-2">
+            Masuk ke akunmu
+          </h3>
           <p className="text-sm text-gray-600 mb-6">
-            Tidak punya akun Eventify?{' '}
-            <Link href="/auth/sign-up" className="text-blue-600 font-medium hover:underline">
+            Tidak punya akun Eventify?{" "}
+            <Link
+              href="/auth/sign-up"
+              className="text-blue-600 font-medium hover:underline"
+            >
               Daftar
             </Link>
           </p>
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-sm text-gray-600 font-medium mb-1" htmlFor="email">
+              <label
+                className="block text-sm text-gray-600 font-medium mb-1"
+                htmlFor="email"
+              >
                 Email
               </label>
               <input
@@ -59,11 +96,14 @@ export default function LoginPage() {
 
             {/* Password */}
             <div className="relative">
-              <label className="block text-sm text-gray-600 font-medium mb-1" htmlFor="password">
+              <label
+                className="block text-sm text-gray-600 font-medium mb-1"
+                htmlFor="password"
+              >
                 Password
               </label>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 id="password"
                 className="w-full border rounded px-4 py-2 pr-10 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={password}
