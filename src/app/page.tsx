@@ -1,6 +1,6 @@
 'use client';
 
-import Navbar from './components/navbar';
+// import Navbar from './components/atomics/navbar.module';
 import Footer from './components/footer';
 import HeroCarousel from './components/hero';
 import EventPilihan from './pages/featured-event';
@@ -10,7 +10,7 @@ import PopularEvents from './pages/popular-events'; // jangan lupa import Popula
 export default function Home() {
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
 
       {/* Main Container */}
       <div className="min-h-screen pt-9 pb-20 bg-white"> {/* tambahkan pb-20 di sini */}

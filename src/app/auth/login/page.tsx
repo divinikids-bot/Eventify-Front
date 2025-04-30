@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react"; // <-- Tambahin import icon
-
+import { Eye, EyeOff } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { useLogin } from "@/utils/useLogin";
 import { getAuthCookie } from "@/app/lib/cookies";
@@ -13,22 +12,22 @@ export default function LoginPage() {
   const { login } = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // <-- Buat toggle lihat password
+  const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPassword = () => setShowPassword(!showPassword);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const result = await login(email, password);
-    const authorize = getAuthCookie();
-    // console.log(">>>>>>>>>>", authorize);
+    const authorize = getAuthCookie()
 
+    
     if (result.success) {
       toast.success(result.message as string);
       if (authorize.role === "USER") {
         window.location.href = "/pages/dashboard/user";
       } else {
-        window.location.href = "/";
+        window.location.href = "/pages/dashboard/Promotor"
       }
     } else {
       toast.error(
@@ -56,16 +55,13 @@ export default function LoginPage() {
             Tidak lagi ketinggalan event dan konser favoritmu
           </h2>
           <p className="text-xl text-center text-gray-600 font-semibold max-w-md">
-            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di
-            Eventify.
+            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di Eventify.
           </p>
         </div>
 
         {/* Kanan: Form Login */}
         <div className="bg-white rounded-xl shadow-md p-8 w-full max-w-md mx-auto border">
-          <h3 className="text-xl text-gray-600 font-semibold mb-2">
-            Masuk ke akunmu
-          </h3>
+          <h3 className="text-xl text-gray-600 font-semibold mb-2">Masuk ke akunmu</h3>
           <p className="text-sm text-gray-600 mb-6">
             Tidak punya akun Eventify?{" "}
             <Link
@@ -90,7 +86,8 @@ export default function LoginPage() {
                 className="w-full border rounded px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Masukan email"
+                placeholder="Masukkan email"
+                required
               />
             </div>
 
@@ -109,6 +106,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                required
               />
               <button
                 type="button"
