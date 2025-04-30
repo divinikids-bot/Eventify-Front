@@ -1,133 +1,136 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 
 export default function UserDashboard() {
-  const [userData, setUserData] = useState({
-    id: 'USR123456',
-    name: 'John Doe',
-    email: 'john@example.com',
-    profilePhoto: '/images/default-profile.png', // default profile photo
-  });
+  const { data: session } = useSession();
+  const [activeTab, setActiveTab] = useState('tickets');
 
-  const [newName, setNewName] = useState(userData.name);
-  const [newPassword, setNewPassword] = useState('');
-  const [newPhoto, setNewPhoto] = useState<File | null>(null);
-  
-  const [purchasedTickets, setPurchasedTickets] = useState([
-    { id: 'TICKET001', event: 'Concert A', date: '2025-06-15' },
-    { id: 'TICKET002', event: 'Festival B', date: '2025-07-20' },
-  ]);
+  const user = {
+    firstName: session?.user?.firstName || '',
+    lastName: session?.user?.lastName || '',
+    email: session?.user?.email || '',
+    phone: session?.user?.phone || '',
+    birthDate: session?.user?.birthDate || '',
+    gender: session?.user?.gender || '',
+  };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setNewPhoto(e.target.files[0]);
-      // Optional: langsung preview foto
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          setUserData(prev => ({ ...prev, profilePhoto: reader.result as string }));
-        }
-      };
-      reader.readAsDataURL(e.target.files[0]);
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'tickets':
+        return <TicketsSection />;
+      case 'info':
+        return <BasicInfo user={user} />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return null;
     }
   };
 
-  const handleSaveChanges = () => {
-    console.log('Saving changes:', { newName, newPassword, newPhoto });
+  return (
+    <div className="min-h-screen bg-gray-100 flex">
+      {/* Sidebar Menu */}
+      <aside className="w-64 bg-white p-6 border-r hidden md:block">
+        <h2 className="text-xl font-bold mb-6 text-gray-600">Dashboard</h2>
+        <nav className="flex flex-col gap-4">
+          <button onClick={() => setActiveTab('tickets')} className={tabStyle(activeTab === 'tickets')}>Tiket Saya</button>
+          <button onClick={() => setActiveTab('info')} className={tabStyle(activeTab === 'info')}>Informasi Dasar</button>
+          <button onClick={() => setActiveTab('settings')} className={tabStyle(activeTab === 'settings')}>Pengaturan</button>
+        </nav>
+      </aside>
 
-    // TODO: Integrasi ke backend buat update data user
+      {/* Main Content */}
+      <main className="flex-1 p-6">
+        {renderContent()}
+      </main>
+    </div>
+  );
+}
 
-    setUserData(prev => ({
-      ...prev,
-      name: newName,
-      // biasanya email tetap ga diubah di dashboard ya
-    }));
+function tabStyle(active: boolean) {
+  return `text-left px-4 py-2 rounded-md font-medium ${
+    active ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200'
+  }`;
+}
 
-    alert('Perubahan disimpan!');
-  };
+function subTabStyle(active: boolean) {
+  return `px-4 py-2 rounded-full text-sm ${
+    active ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+  }`;
+}
+
+// --- Tiket Section ---
+function TicketsSection() {
+  const [ticketTab, setTicketTab] = useState<'active' | 'past'>('active');
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 flex flex-col items-center">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-3xl">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Pengguna</h1>
-
-        {/* Profile Section */}
-        <div className="flex flex-col items-center gap-4 mb-8">
-          <div className="relative">
-            <Image
-              src={userData.profilePhoto}
-              alt="Profile Photo"
-              width={120}
-              height={120}
-              className="rounded-full object-cover border"
-            />
-            <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1 rounded-full cursor-pointer">
-              <input type="file" className="hidden" onChange={handlePhotoChange} />
-              ✏️
-            </label>
-          </div>
-          <div className="text-center">
-            <h2 className="text-lg font-semibold">{userData.name}</h2>
-            <p className="text-gray-500 text-sm">ID: {userData.id}</p>
-          </div>
-        </div>
-
-        {/* Update Section */}
-        <div className="space-y-4 mb-8">
-          <div>
-            <label className="block text-gray-700 text-sm mb-1">Nama Lengkap</label>
-            <input
-              type="text"
-              className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 text-gray-700"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 text-sm mb-1">Password Baru</label>
-            <input
-              type="password"
-              className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 text-gray-700"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            onClick={handleSaveChanges}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg"
-          >
-            Simpan Perubahan
-          </button>
-        </div>
-
-        {/* Purchased Tickets */}
-        <div>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Tiket yang Dibeli</h3>
-          <div className="space-y-4">
-            {purchasedTickets.length > 0 ? (
-              purchasedTickets.map((ticket) => (
-                <div
-                  key={ticket.id}
-                  className="border p-4 rounded-lg flex justify-between items-center shadow-sm bg-gray-100"
-                >
-                  <div>
-                    <p className="font-semibold">{ticket.event}</p>
-                    <p className="text-gray-500 text-sm">{ticket.date}</p>
-                  </div>
-                  <span className="text-gray-700 text-xs">ID Tiket: {ticket.id}</span>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500 text-sm">Belum ada tiket yang dibeli.</p>
-            )}
-          </div>
-        </div>
+    <div>
+      <h3 className="text-2xl font-bold mb-4 text-gray-600">Tiket Saya</h3>
+      <div className="flex gap-4 mb-6">
+        <button onClick={() => setTicketTab('active')} className={subTabStyle(ticketTab === 'active')}>Event Aktif</button>
+        <button onClick={() => setTicketTab('past')} className={subTabStyle(ticketTab === 'past')}>Event Lalu</button>
       </div>
+
+      <div>
+        {ticketTab === 'active' ? (
+          <p>Belum ada tiket untuk event aktif.</p>
+        ) : (
+          <p>Belum ada tiket dari event yang lalu.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// --- Informasi Dasar Section ---
+function BasicInfo({ user }: { user: any }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="text-2xl font-bold mb-4 text-gray-600">Informasi Dasar</h3>
+      <div className="bg-white p-6 rounded-md shadow-md space-y-4 text-gray-600">
+        <div>
+          <label className="block text-gray-600 text-sm font-medium">Nama Depan</label>
+          <input type="text" defaultValue={user.firstName} className="input" />
+        </div>
+        <div>
+          <label className="block text-gray-600 text-sm font-medium">Nama Belakang</label>
+          <input type="text" defaultValue={user.lastName} className="input" />
+        </div>
+        <div>
+          <label className="block text-gray-600 text-sm font-medium">Email</label>
+          <input type="email" defaultValue={user.email} className="input" disabled />
+        </div>
+        <div>
+          <label className="block text-gray-600 text-sm font-medium">No. Ponsel</label>
+          <input type="text" defaultValue={user.phone} className="input" />
+        </div>
+        <div>
+          <label className="block text-gray-600 text-sm font-medium">Tanggal Lahir</label>
+          <input type="date" defaultValue={user.birthDate} className="input" />
+        </div>
+        <div>
+          <label className="block text-gray-600 text-sm font-medium">Jenis Kelamin</label>
+          <div className="flex gap-4 mt-2">
+            <label><input type="radio" name="gender" defaultChecked={user.gender === 'Laki-laki'} /> Laki-laki</label>
+            <label><input type="radio" name="gender" defaultChecked={user.gender === 'Perempuan'} /> Perempuan</label>
+          </div>
+        </div>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+          Simpan Perubahan
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// --- Pengaturan Section ---
+function Settings() {
+  return (
+    <div>
+      <h3 className="text-2xl font-bold mb-4 text-gray-600">Pengaturan</h3>
+      <p className="text-gray-700">Fitur pengaturan akun akan ditambahkan di versi selanjutnya.</p>
     </div>
   );
 }

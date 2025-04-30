@@ -115,7 +115,7 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-2">
                 <Link href="/auth/login">
-                  <span className="bg-yellow-400 hover:bg-yellow-500 text-gray-100 font-semibold px-4 py-2 rounded-md cursor-pointer">
+                  <span className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-md cursor-pointer">
                     Login
                   </span>
                 </Link>

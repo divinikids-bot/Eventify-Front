@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import Navbar from "./components/atomics/navbar.module";
-
+// Import Client Layout here, which includes the SessionProvider
+import ClientLayout from "./account/ClientLayout";  // Adjust path as needed
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,8 +30,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        {children}
+        {/* Use ClientLayout here to wrap the session provider and navbar */}
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

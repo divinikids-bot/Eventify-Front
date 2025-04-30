@@ -39,19 +39,19 @@ export default function ContactPage() {
         <title>Contact Us | Eventify</title>
       </Head>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto ">
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 ">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Have questions or need assistance? We're here to help!
           </p>
         </div>
 
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden ">
           <div className="md:flex">
             {/* Contact Info Section */}
-            <div className="md:w-1/3 bg-gray-800 text-white p-8 md:p-10">
+            <div className="md:w-1/3 bg-[#172B4D] text-white p-8 md:p-10 ">
               <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
               <p className="mb-8 text-gray-300">
                 Fill out the form and our team will get back to you within 24 hours.
@@ -91,7 +91,7 @@ export default function ContactPage() {
                       value={formData.firstName}
                       onChange={handleChange}
                       placeholder="Enter your first name"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-600"
                       required
                     />
                   </div>
@@ -106,7 +106,7 @@ export default function ContactPage() {
                       value={formData.lastName}
                       onChange={handleChange}
                       placeholder="Enter your last name"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-600"
                       required
                     />
                   </div>
