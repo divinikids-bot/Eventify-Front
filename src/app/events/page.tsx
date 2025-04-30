@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { dummyEvents as importedDummyEvents, EventData } from "../data/dummy-events"; // Impor data dummy
 
 type Event = {
   id: string;
@@ -8,78 +9,19 @@ type Event = {
   date: string;
   location: string;
   description: string;
-  category: string;
+  category: "music" | "sport" | "performing visual & arts" | "dating" | "business";
   price: string;
-  image?: string;
-};
+}; // Sesuaikan tipe Event
 
 const categories = [
-  "Music",
-  "Technology",
-  "Art",
-  "Sports",
-  "Business",
-  "Comedy",
+  "music",
+  "sport",
+  "performing visual & arts",
+  "dating",
+  "business",
 ];
 
 const EVENTS_PER_PAGE = 6;
-
-const dummyEvents: Event[] = [
-  {
-    id: "1",
-    title: "Music Festival 2023",
-    date: "2023-08-15",
-    location: "Central Park",
-    description: "Join us for a weekend of amazing music performances from top artists around the world.",
-    category: "Music",
-    price: "Rp149.000",
-  },
-  {
-    id: "2",
-    title: "Tech Conference",
-    date: "2023-09-05",
-    location: "Convention Center",
-    description: "Learn about the latest technologies and network with industry professionals.",
-    category: "Technology",
-    price: "Rp299.000",
-  },
-  {
-    id: "3",
-    title: "Comedy Night",
-    date: "2023-10-12",
-    location: "Downtown Comedy Club",
-    description: "Laugh out loud with our lineup of hilarious comedians.",
-    category: "Comedy",
-    price: "Rp45.000",
-  },
-  {
-    id: "4",
-    title: "Art Exhibition",
-    date: "2023-11-03",
-    location: "Modern Art Museum",
-    description: "Explore contemporary art pieces from renowned artists.",
-    category: "Art",
-    price: "Rp99.000",
-  },
-  {
-    id: "5",
-    title: "Startup Pitch Night",
-    date: "2023-08-25",
-    location: "Innovation Hub",
-    description: "Watch innovative startups pitch their ideas to investors.",
-    category: "Business",
-    price: "Rp120.000",
-  },
-  {
-    id: "6",
-    title: "Basketball Tournament",
-    date: "2023-09-15",
-    location: "Sports Complex",
-    description: "A weekend of competitive basketball with local teams.",
-    category: "Sports",
-    price: "Rp80.000",
-  },
-];
 
 const EventsPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -88,8 +30,19 @@ const EventsPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
-    setEvents(dummyEvents);
-    setFilteredEvents(dummyEvents);
+    // Map importedDummyEvents ke dalam format Event yang sesuai dengan komponen ini
+    const formattedEvents: Event[] = importedDummyEvents.map(event => ({
+      id: event.namaEvent.toLowerCase().replace(/\s+/g, '-'), // Generate ID sederhana
+      title: event.namaEvent,
+      date: event.tanggalEvent,
+      location: event.lokasiEvent,
+      description: event.deskripsiEvent,
+      category: event.kategori, // Gunakan properti kategori dari dummyEvents
+      price: `Rp${event.hargaEvent.toLocaleString()}`,
+      // Anda bisa menambahkan properti 'image' jika ada di dummyEvents
+    }));
+    setEvents(formattedEvents);
+    setFilteredEvents(formattedEvents);
   }, []);
 
   useEffect(() => {
@@ -134,7 +87,7 @@ const EventsPage = () => {
                   onChange={() => handleCategoryChange(category)}
                   className="mr-2 accent-yellow-400"
                 />
-                <label htmlFor={category} className="text-sm">{category}</label>
+                <label htmlFor={category} className="text-sm capitalize">{category.replace(/_/g, ' ')}</label> {/* Menampilkan kategori dengan format yang lebih baik */}
               </div>
             ))}
           </div>
@@ -157,8 +110,8 @@ const EventsPage = () => {
           <p className="mb-6 text-gray-600">Find and join exciting events happening around you</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedEvents.map(event => (
-              <div 
-                key={event.id} 
+              <div
+                key={event.id}
                 className="bg-white rounded-lg shadow-xl p-4 flex flex-col transition-transform hover:scale-[1.02] hover:shadow-2xl"
               >
                 <div className="bg-gray-100 rounded h-32 flex items-center justify-center mb-4">
@@ -170,7 +123,7 @@ const EventsPage = () => {
                   <span>📍 {event.location}</span>
                 </div>
                 <div className="flex items-center mb-2">
-                  <span className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">{event.category}</span>
+                  <span className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">{event.category.replace(/_/g, ' ')}</span> {/* Menampilkan kategori dengan format yang lebih baik */}
                 </div>
                 <h3 className="font-bold text-lg mb-1 text-gray-800">{event.title}</h3>
                 <p className="text-gray-600 text-sm mb-2 line-clamp-2">{event.description}</p>
@@ -183,7 +136,7 @@ const EventsPage = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-8 gap-2">
