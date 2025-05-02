@@ -12,6 +12,7 @@ export default function SignUpPage() {
     password: '',
     confirmPassword: '',
     accountType: 'regular',
+    referralCode: '',
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -29,20 +30,20 @@ export default function SignUpPage() {
     setFormData({
       ...formData,
       accountType: type,
+      referralCode: type === 'regular' ? formData.referralCode : '', // clear referral if not regular
     });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    // Basic validation
+
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const encryptedPassword = btoa(formData.password);
       const encryptedConfirmPassword = btoa(formData.confirmPassword);
@@ -53,21 +54,10 @@ export default function SignUpPage() {
         confirmPassword: encryptedConfirmPassword,
       });
 
-      // Here you would typically call your API
-      // const response = await fetch('/api/signup', {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     ...formData,
-      //     password: encryptedPassword,
-      //     confirmPassword: encryptedConfirmPassword
-      //   })
-      // });
-
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       alert('Registration successful!');
-      // Redirect or show success message
     } catch (error) {
       console.error('Registration error:', error);
       alert('Registration failed. Please try again.');
@@ -105,9 +95,7 @@ export default function SignUpPage() {
         {/* Right: Sign Up Form */}
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full max-w-md mx-auto border border-gray-100">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Create an Account
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800">Create an Account</h2>
             <p className="text-gray-500 mt-2">
               Join Eventify to discover and attend amazing events
             </p>
@@ -116,7 +104,7 @@ export default function SignUpPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name */}
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="fullName">
+              <label htmlFor="fullName" className="block text-gray-700 text-sm font-medium mb-1">
                 Full Name
               </label>
               <input
@@ -133,7 +121,7 @@ export default function SignUpPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="email">
+              <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-1">
                 Email Address
               </label>
               <input
@@ -150,7 +138,7 @@ export default function SignUpPage() {
 
             {/* Password */}
             <div className="relative">
-              <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="password">
+              <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-1">
                 Password
               </label>
               <input
@@ -176,7 +164,7 @@ export default function SignUpPage() {
 
             {/* Confirm Password */}
             <div className="relative">
-              <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="confirmPassword">
+              <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-medium mb-1">
                 Confirm Password
               </label>
               <input
@@ -228,11 +216,29 @@ export default function SignUpPage() {
                 </label>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                {formData.accountType === 'regular' 
-                  ? "As a regular user, you can discover and attend events" 
+                {formData.accountType === 'regular'
+                  ? "As a regular user, you can discover and attend events"
                   : "As an organizer, you can create and manage events"}
               </p>
             </div>
+
+            {/* Referral Code - only show for regular users */}
+            {formData.accountType === 'regular' && (
+              <div>
+                <label htmlFor="referralCode" className="block text-gray-700 text-sm font-medium mb-1">
+                  Referral Code <span className="text-gray-400">(optional)</span>
+                </label>
+                <input
+                  id="referralCode"
+                  name="referralCode"
+                  type="text"
+                  value={formData.referralCode}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 text-gray-700 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                  placeholder="Enter referral code (if any)"
+                />
+              </div>
+            )}
 
             {/* Terms and Conditions */}
             <div className="flex items-start">

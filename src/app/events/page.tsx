@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dummyEvents as importedDummyEvents, EventData } from "../data/dummy-events"; // Impor data dummy
+import { useRouter } from "next/navigation";
+import { dummyEvents as importedDummyEvents } from "../../data/dummy-events";
 
 type Event = {
   id: string;
@@ -11,35 +12,27 @@ type Event = {
   description: string;
   category: "music" | "sport" | "performing visual & arts" | "dating" | "business";
   price: string;
-}; // Sesuaikan tipe Event
+};
 
-const categories = [
-  "music",
-  "sport",
-  "performing visual & arts",
-  "dating",
-  "business",
-];
-
+const categories = ["music", "sport", "performing visual & arts", "dating", "business"];
 const EVENTS_PER_PAGE = 6;
 
 const EventsPage = () => {
+  const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
-    // Map importedDummyEvents ke dalam format Event yang sesuai dengan komponen ini
     const formattedEvents: Event[] = importedDummyEvents.map(event => ({
-      id: event.namaEvent.toLowerCase().replace(/\s+/g, '-'), // Generate ID sederhana
+      id: event.id,
       title: event.namaEvent,
       date: event.tanggalEvent,
       location: event.lokasiEvent,
       description: event.deskripsiEvent,
-      category: event.kategori, // Gunakan properti kategori dari dummyEvents
-      price: `Rp${event.hargaEvent.toLocaleString()}`,
-      // Anda bisa menambahkan properti 'image' jika ada di dummyEvents
+      category: event.kategori,
+      price: `Rp${(event.hargaEvent ?? 0).toLocaleString()}`,
     }));
     setEvents(formattedEvents);
     setFilteredEvents(formattedEvents);
@@ -73,8 +66,8 @@ const EventsPage = () => {
   return (
     <div className="bg-white min-h-screen">
       <div className="flex flex-col md:flex-row gap-8 p-8 max-w-7xl mx-auto">
-        {/* Sidebar with navy blue background */}
-        <aside className="w-full md:w-1/4 bg-[#172B4D] rounded-lg shadow-lg p-6 mb-8 md:mb-0 text-white">
+        {/*sidebar + filter*/}
+        <aside className="w-[300px] bg-[#172B4D] rounded-lg shadow-lg p-6 text-white max-h-[500px] overflow-auto mt-[86px]">
           <h2 className="text-xl font-bold mb-4">Filters</h2>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">Categories</label>
@@ -87,13 +80,13 @@ const EventsPage = () => {
                   onChange={() => handleCategoryChange(category)}
                   className="mr-2 accent-yellow-400"
                 />
-                <label htmlFor={category} className="text-sm capitalize">{category.replace(/_/g, ' ')}</label> {/* Menampilkan kategori dengan format yang lebih baik */}
+                <label htmlFor={category} className="text-sm capitalize">
+                  {category.replace(/_/g, " ")}
+                </label>
               </div>
             ))}
           </div>
-          <button
-            className="w-full bg-yellow-400 text-[#172B4D] font-semibold py-2 rounded mb-2 hover:bg-yellow-300 transition-colors"
-          >
+          <button className="w-full bg-yellow-400 text-[#172B4D] font-semibold py-2 rounded mb-2 hover:bg-yellow-300 transition-colors">
             Apply Filters
           </button>
           <button
@@ -104,7 +97,7 @@ const EventsPage = () => {
           </button>
         </aside>
 
-        {/* Main Content */}
+        {/* Main content */}
         <main className="flex-1">
           <h1 className="text-3xl font-bold mb-2 text-gray-800">Discover Events</h1>
           <p className="mb-6 text-gray-600">Find and join exciting events happening around you</p>
@@ -118,18 +111,25 @@ const EventsPage = () => {
                   <span className="text-gray-400 text-4xl">🖼️</span>
                 </div>
                 <div className="flex items-center text-xs text-gray-500 mb-2">
-                  <span className="mr-2">📅 {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  <span className="mr-2">
+                    📅 {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </span>
                   <span className="mx-2">•</span>
                   <span>📍 {event.location}</span>
                 </div>
                 <div className="flex items-center mb-2">
-                  <span className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">{event.category.replace(/_/g, ' ')}</span> {/* Menampilkan kategori dengan format yang lebih baik */}
+                  <span className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">
+                    {event.category.replace(/_/g, " ")}
+                  </span>
                 </div>
                 <h3 className="font-bold text-lg mb-1 text-gray-800">{event.title}</h3>
                 <p className="text-gray-600 text-sm mb-2 line-clamp-2">{event.description}</p>
                 <div className="mt-auto flex items-center justify-between">
                   <span className="font-bold text-base text-gray-800">{event.price}</span>
-                  <button className="bg-yellow-400 text-[#172B4D] font-semibold px-4 py-2 rounded hover:bg-yellow-300 transition-colors">
+                  <button
+                    onClick={() => router.push(`/events/${event.id}`)}
+                    className="bg-yellow-400 text-[#172B4D] font-semibold px-4 py-2 rounded hover:bg-yellow-300 transition-colors"
+                  >
                     Get Ticket
                   </button>
                 </div>

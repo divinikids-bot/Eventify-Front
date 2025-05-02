@@ -3,7 +3,7 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import Image from 'next/image';
-import { dummyEvents, EventData } from '../data/dummy-events'; // Sesuaikan path jika perlu
+import { dummyEvents, EventData } from '../../data/dummy-events'; // Sesuaikan path jika perlu
 
 export default function EventPilihan() {
   return (
@@ -37,13 +37,15 @@ export default function EventPilihan() {
                   <div>
                     <h3 className="text-lg text-gray-600 font-semibold truncate">{event.namaEvent}</h3>
                     <p className="text-sm text-gray-500">{event.tanggalEvent}</p>
-                    <p className="text-base text-gray-600 font-bold mt-2">Rp{event.hargaEvent.toLocaleString()}</p>
+                    {event.hargaEvent !== undefined && (
+                      <p className="text-base text-gray-600 font-bold mt-2">Rp{event.hargaEvent.toLocaleString()}</p>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2 mt-4 pt-2 border-t">
                     <Image
                       src="/placeholder.svg" // Anda mungkin ingin mengganti ini dengan properti logo jika ada di dummyEvents
-                      alt={event.eventOrganizer}
+                      alt={event.eventOrganizer || 'Event Organizer'}
                       width={30}
                       height={30}
                       className="rounded-full object-cover"
