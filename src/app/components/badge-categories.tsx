@@ -9,9 +9,8 @@ type Category = {
 const categories: Category[] = [
   { label: "Music", imageUrl: "/badge/music-note.svg" },
   { label: "Sport", imageUrl: "/badge/sport.svg" },
-  { label: "Performing & Visual Arts", imageUrl: "/badge/theater-masks.svg" },
-  { label: "Dating", imageUrl: "/badge/heart-partner-handshake.svg" },
-  { label: "Business", imageUrl: "/badge/chart-histogram.svg" },
+  { label: "Food", imageUrl: "/badge/theater-masks.svg" },
+  { label: "Beauty", imageUrl: "/badge/heart-partner-handshake.svg" }
 ];
 
 const CategoriesBadge: React.FC = () => {

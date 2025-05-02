@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 
-export default function UserDashboard() {
+export default function pageUser() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("tickets");
 

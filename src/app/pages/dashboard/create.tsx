@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
-import { Label } from "@/app/components/ui/label";
-import { Textarea } from "@/app/components/ui/textarea";
+import { Button } from "@/app/components/atomics/button";
+import { Input } from "@/app/components/atomics/input";
+import { Label } from "@/app/components/atomics/label";
+import { Textarea } from "@/app/components/atomics/textarea";
 import { CalendarIcon } from "lucide-react";
 
 export default function CreateEventPage() {
