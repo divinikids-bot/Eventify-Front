@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 
 const teamMembers = [
@@ -52,7 +51,6 @@ const values = [
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen bg-white"> {/* Tambah bg-white di sini */}
-      <Navbar />
 
       <main className="flex-1 flex flex-col space-y-16">
         {/* Hero Section */}
@@ -131,7 +129,7 @@ export default function AboutPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gray-50 py-16">
+        <section className="bg-white py-16">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-6 text-black">Ready to discover amazing events?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto text-black">

@@ -1,125 +1,168 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Plus, Edit, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import { dummyEvents as importedDummyEvents, EventData } from "../data/dummy-events"; // Impor data dummy
 
-interface Event {
-  id: number;
-  name: string;
+type Event = {
+  id: string;
+  title: string;
   date: string;
   location: string;
-  status: "Active" | "Inactive";
-}
+  description: string;
+  category: "music" | "sport" | "performing visual & arts" | "dating" | "business";
+  price: string;
+}; // Sesuaikan tipe Event
 
-export default function EventDashboard() {
-  const [events, setEvents] = useState<Event[]>([
-    {
-      id: 1,
-      name: "Startup Meetup 2025",
-      date: "2025-06-15",
-      location: "Jakarta, Indonesia",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Tech Conference 2025",
-      date: "2025-08-10",
-      location: "Bali, Indonesia",
-      status: "Inactive",
-    },
-    {
-      id: 3,
-      name: "Music Festival 2025",
-      date: "2025-09-05",
-      location: "Bandung, Indonesia",
-      status: "Active",
-    },
-  ]);
+const categories = [
+  "music",
+  "sport",
+  "performing visual & arts",
+  "dating",
+  "business",
+];
 
-  const deleteEvent = (id: number) => {
-    const confirmed = confirm("Are you sure you want to delete this event?");
-    if (confirmed) {
-      setEvents(events.filter((event) => event.id !== id));
+const EVENTS_PER_PAGE = 6;
+
+const EventsPage = () => {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  useEffect(() => {
+    // Map importedDummyEvents ke dalam format Event yang sesuai dengan komponen ini
+    const formattedEvents: Event[] = importedDummyEvents.map(event => ({
+      id: event.namaEvent.toLowerCase().replace(/\s+/g, '-'), // Generate ID sederhana
+      title: event.namaEvent,
+      date: event.tanggalEvent,
+      location: event.lokasiEvent,
+      description: event.deskripsiEvent,
+      category: event.kategori, // Gunakan properti kategori dari dummyEvents
+      price: `Rp${event.hargaEvent.toLocaleString()}`,
+      // Anda bisa menambahkan properti 'image' jika ada di dummyEvents
+    }));
+    setEvents(formattedEvents);
+    setFilteredEvents(formattedEvents);
+  }, []);
+
+  useEffect(() => {
+    let filtered = events;
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(event => selectedCategories.includes(event.category));
     }
+    setFilteredEvents(filtered);
+    setCurrentPage(1);
+  }, [selectedCategories, events]);
+
+  const startIndex = (currentPage - 1) * EVENTS_PER_PAGE;
+  const paginatedEvents = filteredEvents.slice(startIndex, startIndex + EVENTS_PER_PAGE);
+  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const handleReset = () => {
+    setSelectedCategories([]);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-black">Event Dashboard</h1>
-          <Link
-            href="/dashboard/events/create"
-            className="flex items-center bg-primary text-white font-semibold px-4 py-2 rounded hover:bg-primary/90"
+    <div className="bg-white min-h-screen">
+      <div className="flex flex-col md:flex-row gap-8 p-8 max-w-7xl mx-auto">
+        {/* Sidebar with navy blue background */}
+        <aside className="w-full md:w-1/4 bg-[#172B4D] rounded-lg shadow-lg p-6 mb-8 md:mb-0 text-white">
+          <h2 className="text-xl font-bold mb-4">Filters</h2>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">Categories</label>
+            {categories.map(category => (
+              <div key={category} className="flex items-center mb-2">
+                <input
+                  type="checkbox"
+                  id={category}
+                  checked={selectedCategories.includes(category)}
+                  onChange={() => handleCategoryChange(category)}
+                  className="mr-2 accent-yellow-400"
+                />
+                <label htmlFor={category} className="text-sm capitalize">{category.replace(/_/g, ' ')}</label> {/* Menampilkan kategori dengan format yang lebih baik */}
+              </div>
+            ))}
+          </div>
+          <button
+            className="w-full bg-yellow-400 text-[#172B4D] font-semibold py-2 rounded mb-2 hover:bg-yellow-300 transition-colors"
           >
-            <Plus className="w-5 h-5 mr-2" />
-            Create Event
-          </Link>
-        </div>
+            Apply Filters
+          </button>
+          <button
+            className="w-full border border-gray-300 text-white py-2 rounded hover:bg-white hover:text-[#172B4D] transition-colors"
+            onClick={handleReset}
+          >
+            Reset Filters
+          </button>
+        </aside>
 
-        <div className="overflow-x-auto bg-white shadow rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {events.map((event) => (
-                <tr key={event.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-black">{event.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-black">{event.date}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-black">{event.location}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-2 text-xs font-semibold leading-5 rounded-full ${
-                        event.status === "Active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {event.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center space-x-4">
-                    <Link href={`/dashboard/events/edit/${event.id}`} className="text-primary hover:underline">
-                      <Edit className="inline w-5 h-5" />
-                    </Link>
-                    <button
-                      onClick={() => deleteEvent(event.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      <Trash className="inline w-5 h-5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {events.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="text-center text-gray-500 py-10">
-                    No events found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {/* Main Content */}
+        <main className="flex-1">
+          <h1 className="text-3xl font-bold mb-2 text-gray-800">Discover Events</h1>
+          <p className="mb-6 text-gray-600">Find and join exciting events happening around you</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedEvents.map(event => (
+              <div
+                key={event.id}
+                className="bg-white rounded-lg shadow-xl p-4 flex flex-col transition-transform hover:scale-[1.02] hover:shadow-2xl"
+              >
+                <div className="bg-gray-100 rounded h-32 flex items-center justify-center mb-4">
+                  <span className="text-gray-400 text-4xl">🖼️</span>
+                </div>
+                <div className="flex items-center text-xs text-gray-500 mb-2">
+                  <span className="mr-2">📅 {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  <span className="mx-2">•</span>
+                  <span>📍 {event.location}</span>
+                </div>
+                <div className="flex items-center mb-2">
+                  <span className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">{event.category.replace(/_/g, ' ')}</span> {/* Menampilkan kategori dengan format yang lebih baik */}
+                </div>
+                <h3 className="font-bold text-lg mb-1 text-gray-800">{event.title}</h3>
+                <p className="text-gray-600 text-sm mb-2 line-clamp-2">{event.description}</p>
+                <div className="mt-auto flex items-center justify-between">
+                  <span className="font-bold text-base text-gray-800">{event.price}</span>
+                  <button className="bg-yellow-400 text-[#172B4D] font-semibold px-4 py-2 rounded hover:bg-yellow-300 transition-colors">
+                    Get Ticket
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-8 gap-2">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => p - 1)}
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition-colors"
+              >
+                Prev
+              </button>
+              <span className="px-4 py-2 text-gray-700">
+                {currentPage} / {totalPages}
+              </span>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => p + 1)}
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
-}
+};
+
+export default EventsPage;
