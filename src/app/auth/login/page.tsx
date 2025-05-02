@@ -19,15 +19,14 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const result = await login(email, password);
-    const authorize = getAuthCookie()
+    const authorize = getAuthCookie();
 
-    
     if (result.success) {
       toast.success(result.message as string);
       if (authorize.role === "USER") {
         window.location.href = "/pages/dashboard/user";
       } else {
-        window.location.href = "/pages/dashboard/Promotor"
+        window.location.href = "/pages/dashboard/promotor";
       }
     } else {
       toast.error(
@@ -55,13 +54,16 @@ export default function LoginPage() {
             Tidak lagi ketinggalan event dan konser favoritmu
           </h2>
           <p className="text-xl text-center text-gray-600 font-semibold max-w-md">
-            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di Eventify.
+            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di
+            Eventify.
           </p>
         </div>
 
         {/* Kanan: Form Login */}
         <div className="bg-white rounded-xl shadow-md p-8 w-full max-w-md mx-auto border">
-          <h3 className="text-xl text-gray-600 font-semibold mb-2">Masuk ke akunmu</h3>
+          <h3 className="text-xl text-gray-600 font-semibold mb-2">
+            Masuk ke akunmu
+          </h3>
           <p className="text-sm text-gray-600 mb-6">
             Tidak punya akun Eventify?{" "}
             <Link
