@@ -1,9 +1,7 @@
 import Link from "next/link";
-<<<<<<< HEAD
+
 import Footer from "../../components/footer";
-=======
-import Footer from "../components/molecules/footer";
->>>>>>> 723e2eed32646524949430a91fb1f3c3d9431cd6
+
 
 const teamMembers = [
   {
