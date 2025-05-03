@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Menu, X, Search } from 'lucide-react';
-import axios from 'axios';
-import { getAuthCookie } from '@/app/lib/cookies';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Menu, X, Search } from "lucide-react";
+import axios from "axios";
+import { getAuthCookie } from "@/app/lib/cookies";
 
 export default function Navbar() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -21,17 +21,14 @@ export default function Navbar() {
 
   useEffect(() => {
     if (debouncedSearch) {
-      console.log('Search:', debouncedSearch);
+      console.log("Search:", debouncedSearch);
     }
   }, [debouncedSearch]);
 
   const handleSearch = () => {
-    if (!searchTerm.trim()) return alert('Please enter a search term!');
-    console.log('Manual Search:', searchTerm);
+    if (!searchTerm.trim()) return alert("Please enter a search term!");
+    console.log("Manual Search:", searchTerm);
   };
-
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   useEffect(() => {
     const auth = getAuthCookie();
@@ -43,9 +40,12 @@ export default function Navbar() {
           },
         })
         .then((res) => setUser(res.data.data))
-        .catch((err) => console.error('Failed to fetch user profile:', err));
+        .catch((err) => console.error("Failed to fetch user profile:", err));
     }
   }, []);
+
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   return (
     <nav className="bg-[#172B4D] px-4 sm:px-6 py-3">
@@ -77,16 +77,34 @@ export default function Navbar() {
 
           {/* Right: Nav Links + User or Auth */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-white font-medium hover:underline">Home</Link>
-            <Link href="/events" className="text-white font-medium hover:underline">Events</Link>
-            <Link href="/about" className="text-white font-medium hover:underline">About</Link>
-            <Link href="/contact" className="text-white font-medium hover:underline">Contact</Link>
+            <Link href="/" className="text-white font-medium hover:underline">
+              Home
+            </Link>
+            <Link
+              href="/events"
+              className="text-white font-medium hover:underline"
+            >
+              Events
+            </Link>
+            <Link
+              href="/about"
+              className="text-white font-medium hover:underline"
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="text-white font-medium hover:underline"
+            >
+              Contact
+            </Link>
 
+            {/* Cek apakah user sudah login */}
             {user ? (
               <div className="relative flex items-center gap-2">
                 {/* Menampilkan gambar profil jika ada */}
                 <Image
-                  src={user.profileImageUrl || '/default-avatar.png'}
+                  src={user.profileImageUrl || "/default-avatar.png"}
                   alt="Profile"
                   width={36}
                   height={36}
@@ -94,16 +112,29 @@ export default function Navbar() {
                   onClick={toggleDropdown}
                 />
                 {/* Tampilkan nama pengguna jika ada */}
-                <span className="text-white font-medium">{user.name || 'User'}</span>
+                <span className="text-white font-medium">
+                  {user.name || "USER"}
+                </span>
 
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded shadow-md py-2 z-50">
-                    <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
-                    <Link href="/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Settings
+                    </Link>
                     <button
                       onClick={() => {
-                        document.cookie = 'auth=; Max-Age=0';
-                        window.location.href = '/';
+                        document.cookie = "auth=; Max-Age=0"; // Hapus cookie
+                        setUser(null); // Hapus user dari state
+                        window.location.href = "/"; // Redirect ke home
                       }}
                       className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
                     >
@@ -119,7 +150,7 @@ export default function Navbar() {
                     Login
                   </span>
                 </Link>
-                <Link href="/auth/sign-up">
+                <Link href="/auth/signUp">
                   <span className="bg-white hover:bg-gray-100 text-black font-semibold px-4 py-2 rounded-md cursor-pointer">
                     Sign Up
                   </span>

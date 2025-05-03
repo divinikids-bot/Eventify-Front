@@ -3,7 +3,7 @@ import { api } from "@/app/lib/axios";
 export function useEvent() {
   async function createEvent(email: string, password: string) {
     try {
-      const response = await api.post("/events", { email, password });
+      const response = await api.post("/create-events", { email, password });
       const { access_token, role, id } = response.data.data;
       console.log("=====respon data=====", response.data);
 
@@ -20,19 +20,15 @@ export function useEvent() {
     }
   }
 
-  async function updateEvent(idEvent: number){
+  async function updateEvent(idEvent: number) {}
+  async function deleteEvent(idEvent: number) {}
 
-  }
-  async function deleteEvent(idEvent:number){
-
-  }
-
-  async function generateCoupon(){}
+  async function generateCoupon() {}
 
   return {
     createEvent,
     updateEvent,
     deleteEvent,
-    generateCoupon
+    generateCoupon,
   };
 }

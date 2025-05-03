@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { FaCalendarAlt, FaTicketAlt, FaMoneyBillWave } from "react-icons/fa";
 import CreateEvent from "@/app/components/molecules/createEvent.module";
 
+
 export default function pagePromotor() {
   // Komponen Kartu Statistik
   const [showForm, setShowForm] = useState(false);
@@ -114,13 +115,7 @@ export default function pagePromotor() {
 
         {showForm ? (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <CreateEvent />
-            <button
-              onClick={() => setShowForm(false)}
-              className="mt-4 text-red-500 hover:underline"
-            >
-              Batal
-            </button>
+            <CreateEvent onCancel={() => setShowForm(false)} />
           </div>
         ) : (
           <EventList />
