@@ -4,28 +4,17 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { dummyEvents as importedDummyEvents } from "../../data/dummy-events";
 
-type Event = {
+export interface Event {
   id: string;
   title: string;
   date: string;
   location: string;
   description: string;
-  category:
-    | "music"
-    | "sport"
-    | "performing visual & arts"
-    | "dating"
-    | "business";
+  category: "MUSIC" | "SPORTS" | "FOOD" | "BEAUTY";
   price: string;
 };
 
-const categories = [
-  "music",
-  "sport",
-  "performing visual & arts",
-  "dating",
-  "business",
-];
+const categories = ["MUSIC", "SPORTS", "FOOD", "BEAUTY"];
 const EVENTS_PER_PAGE = 6;
 
 const EventsPage = () => {
@@ -42,7 +31,7 @@ const EventsPage = () => {
       date: event.tanggalEvent,
       location: event.lokasiEvent,
       description: event.deskripsiEvent,
-      category: event.kategori,
+      category: event.kategori.toUpperCase() as Event["category"],
       price: `Rp${(event.hargaEvent ?? 0).toLocaleString()}`,
     }));
     setEvents(formattedEvents);
@@ -143,7 +132,7 @@ const EventsPage = () => {
                   <span>📍 {event.location}</span>
                 </div>
                 <div className="flex items-center mb-2">
-                  <span className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">
+                  <span className="bg-yellow-400 text-gray-900 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">
                     {event.category.replace(/_/g, " ")}
                   </span>
                 </div>
