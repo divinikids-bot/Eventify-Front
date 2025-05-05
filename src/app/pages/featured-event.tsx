@@ -3,7 +3,8 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import Image from 'next/image';
-import { dummyEvents, EventData } from '../../data/dummy-events'; // Sesuaikan path jika perlu
+import Link from 'next/link';
+import { dummyEvents, EventData } from '@/app/data/dummy-events';
 
 export default function EventPilihan() {
   return (
@@ -19,20 +20,17 @@ export default function EventPilihan() {
         }}
       >
         {dummyEvents.map((event: EventData) => (
-          <SwiperSlide key={event.namaEvent} className="h-auto">
-            <div className="h-full px-2">
+          <SwiperSlide key={event.id} className="h-auto">
+            <Link href={`/events/${event.id}`} className="block h-full px-2">
               <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-300 hover:shadow-xl transition duration-300">
-                {/* Gambar Event */}
                 <div className="relative w-full h-[200px]">
                   <Image
-                    src="/placeholder.svg" // Anda mungkin ingin mengganti ini dengan properti gambar dari dummyEvents jika ada
+                    src={event.imageUrl || '/placeholder.svg'}
                     alt={event.namaEvent}
                     fill
                     className="object-cover"
                   />
                 </div>
-
-                {/* Konten */}
                 <div className="p-3 flex flex-col justify-between flex-grow">
                   <div>
                     <h3 className="text-lg text-gray-600 font-semibold truncate">{event.namaEvent}</h3>
@@ -41,10 +39,9 @@ export default function EventPilihan() {
                       <p className="text-base text-gray-600 font-bold mt-2">Rp{event.hargaEvent.toLocaleString()}</p>
                     )}
                   </div>
-
                   <div className="flex items-center gap-2 mt-4 pt-2 border-t">
                     <Image
-                      src="/placeholder.svg" // Anda mungkin ingin mengganti ini dengan properti logo jika ada di dummyEvents
+                      src={event.organizer?.image || '/placeholder.svg'}
                       alt={event.eventOrganizer || 'Event Organizer'}
                       width={30}
                       height={30}
@@ -54,7 +51,7 @@ export default function EventPilihan() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </SwiperSlide>
         ))}
       </Swiper>

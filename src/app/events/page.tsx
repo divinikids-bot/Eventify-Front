@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { dummyEvents as importedDummyEvents } from "../../data/dummy-events";
+import { dummyEvents as importedDummyEvents } from "@/app/data/dummy-events";
 
 type Event = {
   id: string;
@@ -10,11 +10,11 @@ type Event = {
   date: string;
   location: string;
   description: string;
-  category: "music" | "sport" | "performing visual & arts" | "dating" | "business";
+  category: "music" | "sport" | "food" | "beauty";
   price: string;
 };
 
-const categories = ["music", "sport", "performing visual & arts", "dating", "business"];
+const categories = ["music", "sport", "food", "beauty"];
 const EVENTS_PER_PAGE = 6;
 
 const EventsPage = () => {
@@ -112,10 +112,10 @@ const EventsPage = () => {
                 </div>
                 <div className="flex items-center text-xs text-gray-500 mb-2">
                   <span className="mr-2">
-                    📅 {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </span>
                   <span className="mx-2">•</span>
-                  <span>📍 {event.location}</span>
+                  <span>{event.location}</span>
                 </div>
                 <div className="flex items-center mb-2">
                   <span className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">
