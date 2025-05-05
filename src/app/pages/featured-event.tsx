@@ -21,7 +21,7 @@ export default function EventPilihan() {
       >
         {dummyEvents.map((event: EventData) => (
           <SwiperSlide key={event.id} className="h-auto">
-            <Link href={`/events/${event.id}`} className="block h-full px-2">
+            <Link href={`/pages/events/${event.id}`} className="block h-full px-2">
               <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-300 hover:shadow-xl transition duration-300">
                 <div className="relative w-full h-[200px]">
                   <Image

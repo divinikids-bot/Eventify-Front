@@ -1,3 +1,5 @@
+//dummy-ticket.ts
+
 export interface TicketOption {
     id: string;
     eventId: string;

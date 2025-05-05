@@ -195,7 +195,7 @@ export default function Navbar() {
                     Login
                   </span>
                 </Link>
-                <Link href="/auth/sign-up" className="w-full">
+                <Link href="/auth/signUp" className="w-full">
                   <span className="bg-white hover:bg-gray-100 text-black font-semibold px-4 py-2 rounded-md cursor-pointer block text-center">
                     Sign Up
                   </span>

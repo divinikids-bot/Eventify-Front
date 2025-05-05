@@ -39,36 +39,50 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             <Link
               key={event.id}
               href={`/events/${event.id}`}
-              className="group block bg-white rounded-lg shadow-md p-3 flex flex-col transition-transform hover:scale-105 hover:shadow-lg"
+              className="group block bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full border border-gray-200 hover:shadow-lg transition duration-300"
             >
               {/* Gambar */}
-              <div className="relative w-full aspect-[3/2] overflow-hidden rounded-md mb-3">
+              <div className="relative w-full h-[200px]">
                 <Image
                   src={event.imageUrl || '/placeholder.svg'}
-                  alt={event.namaEvent || 'Event Image'}
+                  alt={event.namaEvent}
                   fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="object-cover"
                 />
               </div>
 
-              {/* Badge */}
-              <span className="inline-block bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mb-2 capitalize">
-                {normalizedCategory}
-              </span>
+              {/* Detail Konten */}
+              <div className="p-3 flex flex-col justify-between flex-grow">
+                <div>
+                  {/* Nama Event */}
+                  <h3 className="text-base text-gray-600 font-semibold truncate">
+                    {event.namaEvent}
+                  </h3>
 
-              {/* Judul */}
-              <h2 className="font-semibold text-base text-gray-800 mb-1 line-clamp-2 h-10">
-                {event.namaEvent}
-              </h2>
+                  {/* Tanggal Event */}
+                  <p className="text-xs text-gray-500">{event.tanggalEvent}</p>
 
-              {/* Lokasi */}
-              <p className="text-gray-600 text-sm mb-2 line-clamp-1 h-5">
-                {event.lokasiEvent}
-              </p>
+                  {/* Harga Event */}
+                  {event.hargaEvent !== undefined && (
+                    <p className="text-sm text-gray-600 font-bold mt-2">
+                      Rp{event.hargaEvent.toLocaleString()}
+                    </p>
+                  )}
+                </div>
 
-              {/* Tanggal */}
-              <div className="mt-auto text-gray-400 text-xs">
-                {event.tanggalEvent}
+                {/* Organizer */}
+                <div className="flex items-center mt-3 pt-2 border-t border-gray-200">
+                  <Image
+                    src={event.organizer?.image || '/placeholder.svg'}
+                    alt={event.eventOrganizer || 'Event Organizer'}
+                    width={26}
+                    height={26}
+                    className="rounded-full mr-2 object-cover"
+                  />
+                  <span className="text-xs text-gray-700 truncate">
+                    {event.eventOrganizer}
+                  </span>
+                </div>
               </div>
             </Link>
           ))}

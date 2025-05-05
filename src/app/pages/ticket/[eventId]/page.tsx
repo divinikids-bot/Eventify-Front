@@ -1,6 +1,6 @@
-// pages/tickets/[eventId].tsx
+// pages/ticket/[eventId]/page.tsx
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { dummyTickets, TicketOption } from '@/app/data/dummy-ticket';
 
@@ -8,21 +8,40 @@ export default function TicketPage() {
   const router = useRouter();
   const { eventId } = router.query;
   const [cart, setCart] = useState<{ [key: string]: number }>({});
+  const [tickets, setTickets] = useState<TicketOption[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const tickets = dummyTickets.filter((t) => t.eventId === eventId);
+  // Fetch ticket data based on eventId
+  useEffect(() => {
+    if (eventId) {
+      const filteredTickets = dummyTickets.filter((ticket) => ticket.eventId === eventId);
+      setTickets(filteredTickets);
+      setLoading(false);
+    }
+  }, [eventId]);
+
+  if (loading) {
+    return <p>Loading...</p>; // Show loading state while data is fetching
+  }
 
   const handleQuantityChange = (ticketId: string, quantity: number) => {
     setCart((prev) => ({ ...prev, [ticketId]: quantity }));
   };
 
-  const calculateTotal = () =>
-    tickets.reduce((total, ticket) => {
+  const getDiscountedPrice = (ticket: TicketOption) => {
+    if (ticket.discountPercentage && ticket.discountPercentage > 0) {
+      return ticket.price * (1 - ticket.discountPercentage / 100);
+    }
+    return ticket.price;
+  };
+
+  const calculateTotal = () => {
+    return tickets.reduce((total, ticket) => {
       const quantity = cart[ticket.id] || 0;
-      const discount = ticket.discountPercentage
-        ? ticket.price * (ticket.discountPercentage / 100)
-        : 0;
-      return total + (ticket.price - discount) * quantity;
+      const discountedPrice = getDiscountedPrice(ticket);
+      return total + discountedPrice * quantity;
     }, 0);
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -32,10 +51,7 @@ export default function TicketPage() {
 
       <div className="space-y-6">
         {tickets.map((ticket) => {
-          const discountedPrice =
-            ticket.discountPercentage && ticket.discountPercentage > 0
-              ? ticket.price * (1 - ticket.discountPercentage / 100)
-              : null;
+          const discountedPrice = getDiscountedPrice(ticket);
 
           return (
             <div
@@ -71,7 +87,7 @@ export default function TicketPage() {
               <div className="flex items-center space-x-2">
                 <select
                   className="border rounded px-2 py-1"
-                  value={cart[ticket.id] || 0}
+                  value={cart[ticket.id] || 1} // Default to 1 ticket
                   onChange={(e) =>
                     handleQuantityChange(ticket.id, parseInt(e.target.value))
                   }
