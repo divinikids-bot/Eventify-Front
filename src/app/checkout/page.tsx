@@ -4,24 +4,28 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { dummyTickets, TicketOption } from '@/app/data/dummy-ticket';
 
-export default function TicketPage({ params }: { params: { eventId: string } }) {
-  const eventId = params.eventId;
+export default function CheckoutPage() {
   const router = useRouter();
   const [cart, setCart] = useState<{ [key: string]: number }>({});
   const [tickets, setTickets] = useState<TicketOption[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (eventId) {
-      const filtered = dummyTickets.filter((ticket) => ticket.eventId === eventId);
-      setTickets(filtered);
-      setLoading(false);
-    }
-  }, [eventId]);
+    // Get cart from URL query parameters
+    const queryCart = new URLSearchParams(window.location.search).get('cart');
+    if (queryCart) {
+      const parsedCart = JSON.parse(decodeURIComponent(queryCart));
+      setCart(parsedCart);
 
-  const handleQuantityChange = (ticketId: string, quantity: number) => {
-    setCart((prev) => ({ ...prev, [ticketId]: quantity }));
-  };
+      // Get the tickets associated with the event
+      const eventId = new URLSearchParams(window.location.search).get('eventId');
+      if (eventId) {
+        const filtered = dummyTickets.filter((ticket) => ticket.eventId === eventId);
+        setTickets(filtered);
+      }
+    }
+    setLoading(false);
+  }, []);
 
   const getDiscountedPrice = (ticket: TicketOption) => {
     if (ticket.discountPercentage && ticket.discountPercentage > 0) {
@@ -38,8 +42,18 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
     }, 0);
   };
 
-  const handleCheckout = () => {
-    router.push(`/checkout?eventId=${eventId}&cart=${encodeURIComponent(JSON.stringify(cart))}`);
+  const handlePayment = () => {
+    // Pass cart and total amount to payment page
+    const paymentData = {
+      cart,
+      total: calculateTotal(),
+    };
+    // Convert to query params or pass state via Router
+    const queryParams = new URLSearchParams({
+      cart: JSON.stringify(paymentData.cart),
+      total: paymentData.total.toString(),
+    }).toString();
+    router.push(`/payment?${queryParams}`);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -49,20 +63,21 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
   }
 
   return (
-    <div className="min-h-screen bg-white"> {/* Full page background white */}
-      <div className="max-w-6xl mx-auto p-6 bg-white"> {/* Background putih untuk halaman utama */}
-        <h1 className="text-2xl font-bold mb-6 text-black">Pilih Tiket</h1>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto p-6 bg-white">
+        <h1 className="text-2xl font-bold mb-6">Checkout</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Kartu Tiket */}
+          {/* Cart Items */}
           <div className="flex-1 space-y-6">
             {tickets.map((ticket) => {
               const discounted = getDiscountedPrice(ticket);
+              const quantity = cart[ticket.id] ?? 0;
 
               return (
                 <div
                   key={ticket.id}
-                  className="border rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white text-black" // Kartu tiket dengan latar belakang putih dan teks hitam
+                  className="border rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white"
                 >
                   <div>
                     <h2 className="text-lg font-semibold">{ticket.title}</h2>
@@ -87,29 +102,16 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
                         <>Rp. {ticket.price.toLocaleString('id-ID')}</>
                       )}
                     </div>
-                  </div>
-
-                  <div className="mt-4 sm:mt-0">
-                    <select
-                      className="border rounded px-2 py-1"
-                      value={cart[ticket.id] ?? 0}
-                      onChange={(e) => handleQuantityChange(ticket.id, parseInt(e.target.value))}
-                    >
-                      {[...Array((ticket.quota ?? 10) + 1).keys()].map((qty) => (
-                        <option key={qty} value={qty}>
-                          {qty}
-                        </option>
-                      ))}
-                    </select>
+                    <p className="text-sm text-gray-700 mt-1">Quantity: {quantity}</p>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Ringkasan Order */}
+          {/* Order Summary */}
           <div className="w-full lg:w-[300px] space-y-4 h-fit">
-            <div className="p-4 border rounded-xl bg-white shadow-sm text-black"> {/* Background putih dan teks hitam untuk ringkasan order */}
+            <div className="p-4 border rounded-xl bg-white shadow-sm">
               <h3 className="text-lg font-semibold mb-2">Ringkasan</h3>
               <p className="text-sm text-gray-700">
                 Jumlah Tiket:{' '}
@@ -122,7 +124,7 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
               </p>
             </div>
             <button
-              onClick={handleCheckout}
+              onClick={handlePayment}
               disabled={calculateTotal() === 0}
               className={`w-full py-3 rounded-xl transition text-sm font-semibold ${
                 calculateTotal() === 0
@@ -130,7 +132,7 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             >
-              Pesan Sekarang
+              Bayar Sekarang
             </button>
           </div>
         </div>

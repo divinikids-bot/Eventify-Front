@@ -18,7 +18,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, isLoggedIn }) => {
 
   const handleBeliTiket = () => {
     if (isLoggedIn) {
-      router.push(`/tiket/${eventId}`);
+      router.push(`/ticket/${eventId}`);
     } else {
       router.push('/login');
     }

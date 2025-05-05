@@ -85,8 +85,8 @@ export default function Navbar() {
           <div className="flex items-center gap-6">
             <Link href="/" className="text-white font-medium hover:underline">Home</Link>
             <Link href="/events" className="text-white font-medium hover:underline">Events</Link>
-            <Link href="/about" className="text-white font-medium hover:underline">About</Link>
-            <Link href="/contact" className="text-white font-medium hover:underline">Contact</Link>
+            <Link href="/pages/about" className="text-white font-medium hover:underline">About</Link>
+            <Link href="/pages/contact" className="text-white font-medium hover:underline">Contact</Link>
 
             {user ? (
               <div className="relative flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function Navbar() {
                     Login
                   </span>
                 </Link>
-                <Link href="/auth/sign-up">
+                <Link href="/auth/signUp">
                   <span className="bg-white hover:bg-gray-100 text-black font-semibold px-4 py-2 rounded-md cursor-pointer">
                     Sign Up
                   </span>
