@@ -1,4 +1,4 @@
-import EventDetails from '@/components/eventdetails';
+import EventDetails from "@/app/component/molecules/eventdetails";
 
 interface EventDetailPageProps {
   params: {

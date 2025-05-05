@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEvents } from "@/types/event";
-import { dummyEvents as importedDummyEvents } from "../../../data/dummy-events";
+import { useEvent } from "@/utils/useEvent";
+import { toast, Toaster } from "sonner";
 
 export interface Event {
   id: string;
@@ -21,22 +21,18 @@ const EVENTS_PER_PAGE = 6;
 const EventsPage = () => {
   const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
+  const {getAllEvent, deleteEvent, generateCoupon } = useEvent();
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
-    const formattedEvents: Event[] = importedDummyEvents.map((event) => ({
-      id: event.id,
-      title: event.namaEvent,
-      date: event.tanggalEvent,
-      location: event.lokasiEvent,
-      description: event.deskripsiEvent,
-      category: event.kategori.toUpperCase() as Event["category"],
-      price: `Rp${(event.hargaEvent ?? 0).toLocaleString()}`,
-    }));
-    setEvents(formattedEvents);
-    setFilteredEvents(formattedEvents);
+    async function fetchEvents() {
+      const result = await getAllEvent();
+      setEvents(result);
+      setFilteredEvents(result);
+    }
+    fetchEvents();
   }, []);
 
   useEffect(() => {
@@ -70,117 +66,95 @@ const EventsPage = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen">
-      <div className="flex flex-col md:flex-row gap-8 p-8 max-w-7xl mx-auto">
-        {/*sidebar + filter*/}
-        <aside className="w-[300px] bg-[#172B4D] rounded-lg shadow-lg p-6 text-white max-h-[500px] overflow-auto mt-[86px]">
-          <h2 className="text-xl font-bold mb-4">Filters</h2>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Categories</label>
-            {categories.map((category) => (
-              <div key={category} className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  id={category}
-                  checked={selectedCategories.includes(category)}
-                  onChange={() => handleCategoryChange(category)}
-                  className="mr-2 accent-yellow-400"
-                />
-                <label htmlFor={category} className="text-sm capitalize">
-                  {category.replace(/_/g, " ")}
-                </label>
-              </div>
-            ))}
-          </div>
-          <button className="w-full bg-yellow-400 text-[#172B4D] font-semibold py-2 rounded mb-2 hover:bg-yellow-300 transition-colors">
-            Apply Filters
-          </button>
+    <div className="max-w-5xl mx-auto p-6 ">
+      <h1 className="text-2xl font-bold mb-4">Browse Events</h1>
+
+      {/* Filter */}
+      <div className="mb-4 flex gap-2 flex-wrap">
+        {categories.map((category) => (
           <button
-            className="w-full border border-gray-300 text-white py-2 rounded hover:bg-white hover:text-[#172B4D] transition-colors"
-            onClick={handleReset}
+            key={category}
+            onClick={() => handleCategoryChange(category)}
+            className={`px-3 py-1 rounded border ${
+              selectedCategories.includes(category)
+                ? "bg-blue-500 text-white"
+                : "bg-white text-gray-700"
+            }`}
           >
-            Reset Filters
+            {category}
           </button>
-        </aside>
+        ))}
+        <button
+          onClick={handleReset}
+          className="px-3 py-1 rounded border bg-red-200 text-red-700"
+        >
+          Reset
+        </button>
+      </div>
 
-        {/* Main content */}
-        <main className="flex-1">
-          <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            Discover Events
-          </h1>
-          <p className="mb-6 text-gray-600">
-            Find and join exciting events happening around you
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedEvents.map((event) => (
-              <div
-                key={event.id}
-                className="bg-white rounded-lg shadow-xl p-4 flex flex-col transition-transform hover:scale-[1.02] hover:shadow-2xl"
-              >
-                <div className="bg-gray-100 rounded h-32 flex items-center justify-center mb-4">
-                  <span className="text-gray-400 text-4xl">🖼️</span>
-                </div>
-                <div className="flex items-center text-xs text-gray-500 mb-2">
-                  <span className="mr-2">
-                    📅{" "}
-                    {new Date(event.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                  <span className="mx-2">•</span>
-                  <span>📍 {event.location}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                  <span className="bg-yellow-400 text-gray-900 text-xs font-semibold px-2 py-1 rounded mr-2 capitalize">
-                    {event.category.replace(/_/g, " ")}
-                  </span>
-                </div>
-                <h3 className="font-bold text-lg mb-1 text-gray-800">
-                  {event.title}
-                </h3>
-                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                  {event.description}
-                </p>
-                <div className="mt-auto flex items-center justify-between">
-                  <span className="font-bold text-base text-gray-800">
-                    {event.price}
-                  </span>
-                  <button
-                    onClick={() => router.push(`/events/${event.id}`)}
-                    className="bg-yellow-400 text-[#172B4D] font-semibold px-4 py-2 rounded hover:bg-yellow-300 transition-colors"
-                  >
-                    Get Ticket
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Event List */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {paginatedEvents.map((event) => (
+          <div
+            key={event.id}
+            className="border border-gray-300 rounded-lg p-4 shadow"
+          >
+            <h3 className="text-lg font-semibold">{event.title}</h3>
+            <p className="text-sm text-gray-600">{event.date}</p>
+            <p>{event.location}</p>
+            <p>{event.description}</p>
+            <p className="font-bold">Rp{event.price.toLocaleString()}</p>
+            <p className="text-sm italic">{event.category}</p>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-8 gap-2 text-white">
+            <div className="mt-3 flex gap-2">
               <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-                className="px-4 py-2 bg-yellow-400 rounded disabled:opacity-50 hover:bg-yellow-500 transition-colors"
+                onClick={async () => {
+                  const res = await deleteEvent(Number(event.id));
+                  if (res.success) {
+                    toast.success("Event berhasil dihapus");
+                    setEvents((prev) => prev.filter((e) => e.id !== event.id));
+                  } else {
+                    toast.error("Gagal menghapus event");
+                  }
+                }}
+                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
               >
-                Prev
+                Delete
               </button>
-              <span className="px-4 py-2 text-gray-700">
-                {currentPage} / {totalPages}
-              </span>
+
               <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-                className="px-4 py-2 bg-yellow-400 rounded disabled:opacity-50 hover:bg-yellow-500 transition-colors"
+                onClick={async () => {
+                  const res = await generateCoupon(Number(event.id));
+                  if (res.success) {
+                    toast.success(`Kupon berhasil dibuat: ${res.data?.code}`);
+                  } else {
+                    toast.error("Gagal membuat kupon");
+                  }
+                }}
+                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
               >
-                Next
+                Generate Coupon
               </button>
             </div>
-          )}
-        </main>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="mt-6 flex justify-center items-center gap-2">
+        {Array.from({ length: totalPages }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`px-3 py-1 rounded ${
+              currentPage === i + 1
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
       </div>
     </div>
   );

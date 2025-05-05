@@ -81,7 +81,7 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/events"
+              href="/pages/events/"
               className="text-white font-medium hover:underline"
             >
               Events

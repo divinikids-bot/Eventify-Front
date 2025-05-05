@@ -1,7 +1,6 @@
 import Link from "next/link";
 
-import Footer from "../../components/footer";
-
+import Footer from "../../component/footer";
 
 const teamMembers = [
   {
