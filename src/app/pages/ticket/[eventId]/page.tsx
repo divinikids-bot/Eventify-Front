@@ -1,27 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { dummyTickets, TicketOption } from '@/app/data/dummy-ticket';
 
 export default function TicketPage({ params }: { params: { eventId: string } }) {
   const eventId = params.eventId;
   const router = useRouter();
-  const [cart, setCart] = useState<{ [key: string]: number }>({});
   const [tickets, setTickets] = useState<TicketOption[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [cart, setCart] = useState<{ [ticketId: string]: number }>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (eventId) {
-      const filtered = dummyTickets.filter((ticket) => ticket.eventId === eventId);
+      const filtered = dummyTickets.filter(ticket => ticket.eventId === eventId);
       setTickets(filtered);
       setLoading(false);
     }
   }, [eventId]);
-
-  const handleQuantityChange = (ticketId: string, quantity: number) => {
-    setCart((prev) => ({ ...prev, [ticketId]: quantity }));
-  };
 
   const getDiscountedPrice = (ticket: TicketOption) => {
     if (ticket.discountPercentage && ticket.discountPercentage > 0) {
@@ -30,9 +26,13 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
     return ticket.price;
   };
 
+  const handleQuantityChange = (ticketId: string, quantity: number) => {
+    setCart(prev => ({ ...prev, [ticketId]: quantity }));
+  };
+
   const calculateTotal = () => {
     return tickets.reduce((total, ticket) => {
-      const quantity = cart[ticket.id] ?? 0;
+      const quantity = cart[ticket.id] || 0;
       const price = getDiscountedPrice(ticket);
       return total + quantity * price;
     }, 0);
@@ -44,89 +44,118 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
 
   if (loading) return <p>Loading...</p>;
 
-  if (tickets.length === 0) {
-    return <p className="text-center mt-10 text-gray-600">Tidak ada tiket tersedia.</p>;
-  }
-
   return (
-    <div className="min-h-screen bg-white"> {/* Full page background white */}
-      <div className="max-w-6xl mx-auto p-6 bg-white"> {/* Background putih untuk halaman utama */}
-        <h1 className="text-2xl font-bold mb-6 text-black">Pilih Tiket</h1>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-6 text-black">ONLINE SALES</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Kartu Tiket */}
+          {/* LEFT: Ticket Options */}
           <div className="flex-1 space-y-6">
-            {tickets.map((ticket) => {
-              const discounted = getDiscountedPrice(ticket);
+            {tickets.map(ticket => {
+              const discountedPrice = getDiscountedPrice(ticket);
+              const now = new Date();
+              const isNotStarted = ticket.saleStartDate && new Date(ticket.saleStartDate) > now;
 
               return (
                 <div
                   key={ticket.id}
-                  className="border rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white text-black" // Kartu tiket dengan latar belakang putih dan teks hitam
+                  className="text-black border rounded-xl p-4 shadow-sm bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between "
                 >
                   <div>
-                    <h2 className="text-lg font-semibold">{ticket.title}</h2>
-                    <p className="text-sm text-gray-600">{ticket.description}</p>
-                    {ticket.saleEndDate && (
-                      <p className="text-xs text-blue-600">
-                        Penjualan berakhir: {new Date(ticket.saleEndDate).toLocaleString('id-ID')}
+                    <h2 className="text-lg font-semibold text-black">{ticket.title}</h2>
+                    <p className="text-sm text-gray-600">
+                      Rp. {ticket.price.toLocaleString('id-ID')} belum termasuk PPN
+                    </p>
+
+                    {ticket.saleStartDate && isNotStarted && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        Penjualan dimulai pada{' '}
+                        {new Date(ticket.saleStartDate).toLocaleString('id-ID')}
                       </p>
                     )}
-                    <div className="mt-1 text-red-600 font-semibold">
-                      {ticket.discountPercentage ? (
-                        <>
-                          Rp. {discounted.toLocaleString('id-ID')}{' '}
-                          <span className="line-through text-sm text-gray-400 ml-1">
-                            Rp. {ticket.price.toLocaleString('id-ID')}
-                          </span>{' '}
-                          <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded">
-                            -{ticket.discountPercentage}%
-                          </span>
-                        </>
-                      ) : (
-                        <>Rp. {ticket.price.toLocaleString('id-ID')}</>
-                      )}
+                    {ticket.saleEndDate && !isNotStarted && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        Penjualan berakhir pada{' '}
+                        {new Date(ticket.saleEndDate).toLocaleString('id-ID')}
+                      </p>
+                    )}
+
+                    <div className="mt-2 text-lg font-bold text-black">
+                      Rp. {discountedPrice.toLocaleString('id-ID')}
                     </div>
+
+                    {(ticket.discountPercentage ?? 0) > 0 && (
+                      <div className="text-sm text-gray-500">
+                        <span className="line-through mr-2">
+                          Rp. {ticket.price.toLocaleString('id-ID')}
+                        </span>
+                        <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded">
+                          -{ticket.discountPercentage}%
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="mt-4 sm:mt-0">
-                    <select
-                      className="border rounded px-2 py-1"
-                      value={cart[ticket.id] ?? 0}
-                      onChange={(e) => handleQuantityChange(ticket.id, parseInt(e.target.value))}
-                    >
-                      {[...Array((ticket.quota ?? 10) + 1).keys()].map((qty) => (
-                        <option key={qty} value={qty}>
-                          {qty}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="mt-4 sm:mt-0 flex items-center gap-3">
+                    {isNotStarted ? (
+                      <span className="bg-red-100 text-red-600 text-sm px-3 py-1 rounded font-medium">
+                        Belum dimulai
+                      </span>
+                    ) : (
+                      <select
+                        className="border rounded px-3 py-2"
+                        value={cart[ticket.id] || 0}
+                        onChange={e => handleQuantityChange(ticket.id, parseInt(e.target.value))}
+                      >
+                        {[...Array((ticket.quota ?? 10) + 1).keys()].map(qty => (
+                          <option key={qty} value={qty}>
+                            {qty}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Ringkasan Order */}
-          <div className="w-full lg:w-[300px] space-y-4 h-fit">
-            <div className="p-4 border rounded-xl bg-white shadow-sm text-black"> {/* Background putih dan teks hitam untuk ringkasan order */}
-              <h3 className="text-lg font-semibold mb-2">Ringkasan</h3>
-              <p className="text-sm text-gray-700">
-                Jumlah Tiket:{' '}
-                <span className="font-medium">
-                  {Object.values(cart).reduce((a, b) => a + b, 0)}
-                </span>
-              </p>
-              <p className="text-xl font-bold text-blue-700 mt-1">
-                Rp. {calculateTotal().toLocaleString('id-ID')}
-              </p>
+          {/* RIGHT: Order Summary */}
+          <div className="w-full lg:w-[320px] space-y-4 h-fit">
+            <div className="p-4 border rounded-xl bg-white shadow-sm text-black">
+              <h3 className="text-lg font-semibold mb-3">Ringkasan</h3>
+
+              {Object.entries(cart).map(([ticketId, qty]) => {
+                const ticket = tickets.find(t => t.id === ticketId);
+                if (!ticket || qty === 0) return null;
+
+                const price = getDiscountedPrice(ticket);
+
+                return (
+                  <div key={ticketId} className="flex justify-between text-sm text-gray-700 mb-1">
+                    <span>{ticket.title}</span>
+                    <span>
+                      {qty} tiket x Rp{price.toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                );
+              })}
+
+              <div className="border-t mt-3 pt-3">
+                <p className="text-sm text-gray-700">Jumlah (Total Tiket)</p>
+                <p className="text-xl font-bold text-blue-700">
+                  Rp{calculateTotal().toLocaleString('id-ID')}
+                </p>
+              </div>
             </div>
+
             <button
-              onClick={handleCheckout}
               disabled={calculateTotal() === 0}
-              className={`w-full py-3 rounded-xl transition text-sm font-semibold ${
+              onClick={handleCheckout}
+              className={`w-full py-3 rounded-xl text-sm font-semibold transition ${
                 calculateTotal() === 0
-                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  ? 'bg-gray-400 text-white cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             >

@@ -11,13 +11,11 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Get cart from URL query parameters
     const queryCart = new URLSearchParams(window.location.search).get('cart');
     if (queryCart) {
       const parsedCart = JSON.parse(decodeURIComponent(queryCart));
       setCart(parsedCart);
 
-      // Get the tickets associated with the event
       const eventId = new URLSearchParams(window.location.search).get('eventId');
       if (eventId) {
         const filtered = dummyTickets.filter((ticket) => ticket.eventId === eventId);
@@ -43,12 +41,10 @@ export default function CheckoutPage() {
   };
 
   const handlePayment = () => {
-    // Pass cart and total amount to payment page
     const paymentData = {
       cart,
       total: calculateTotal(),
     };
-    // Convert to query params or pass state via Router
     const queryParams = new URLSearchParams({
       cart: JSON.stringify(paymentData.cart),
       total: paymentData.total.toString(),
@@ -58,8 +54,10 @@ export default function CheckoutPage() {
 
   if (loading) return <p>Loading...</p>;
 
-  if (tickets.length === 0) {
-    return <p className="text-center mt-10 text-gray-600">Tidak ada tiket tersedia.</p>;
+  const selectedTickets = tickets.filter((ticket) => cart[ticket.id] && cart[ticket.id] > 0);
+
+  if (selectedTickets.length === 0) {
+    return <p className="text-center mt-10 text-gray-600">Tidak ada tiket yang dipilih.</p>;
   }
 
   return (
@@ -70,14 +68,14 @@ export default function CheckoutPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Cart Items */}
           <div className="flex-1 space-y-6">
-            {tickets.map((ticket) => {
+            {selectedTickets.map((ticket) => {
               const discounted = getDiscountedPrice(ticket);
-              const quantity = cart[ticket.id] ?? 0;
+              const quantity = cart[ticket.id];
 
               return (
                 <div
                   key={ticket.id}
-                  className="border rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white"
+                  className="text-black border rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white"
                 >
                   <div>
                     <h2 className="text-lg font-semibold">{ticket.title}</h2>
@@ -102,7 +100,7 @@ export default function CheckoutPage() {
                         <>Rp. {ticket.price.toLocaleString('id-ID')}</>
                       )}
                     </div>
-                    <p className="text-sm text-gray-700 mt-1">Quantity: {quantity}</p>
+                    <p className="text-sm text-gray-700 mt-1">Jumlah: {quantity}</p>
                   </div>
                 </div>
               );
