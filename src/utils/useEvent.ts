@@ -9,6 +9,32 @@ export function useEvent() {
     [key: string]: any; // opsional, kalau ingin lebih fleksibel
   }
 
+  async function getAllEvent() {
+    try {
+      const res = await api.get("/events");
+      return res.data; // asumsinya array of events
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+      return [];
+    }
+  }
+
+  async function getEventsByPromotor(promotorId: string) {
+    try {
+      const response = await api.get(`/eventsByPromotor ${promotorId}`);
+      return {
+        data: response.data.data,
+        success: true,
+      };
+    } catch (error) {
+      console.error("Gagal fetch event promotor:", error );
+      return {
+        data: [],
+        success: false,
+      };
+    }
+  }
+
   async function createEvent(email: string, password: string) {
     try {
       const response = await api.post("/create-events", { email, password });
@@ -78,6 +104,8 @@ export function useEvent() {
   }
 
   return {
+    getAllEvent,
+    getEventsByPromotor,
     createEvent,
     updateEvent,
     deleteEvent,

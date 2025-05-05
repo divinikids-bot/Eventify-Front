@@ -13,16 +13,23 @@ interface AuthInfo {
   userId?: string | null;
 }
 
+interface User {
+  name: string;
+  profileImageUrl?: string;
+}
+
 export default function Navbar() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [authInfo, setAuthInfo] = useState<AuthInfo>(getAuthCookie() || {});
+  const [authInfo, setAuthInfo] = useState<AuthInfo>({});
 
   useEffect(() => {
-    const currentAuth = getAuthCookie();
-    setAuthInfo(currentAuth || {});
+    if (typeof window !== 'undefined') {
+      const currentAuth = getAuthCookie();
+      setAuthInfo(currentAuth || {});
+    }
   }, []);
 
   useEffect(() => {
@@ -53,7 +60,6 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto">
         {/* Desktop Navbar */}
         <div className="hidden md:flex items-center justify-between gap-4">
-          {/* Left: Logo + Search */}
           <div className="flex items-center gap-4 flex-1">
             <Link href="/" className="flex items-center gap-2">
               <Image src="/logofinale.png" alt="Logo" width={50} height={30} />
@@ -65,7 +71,7 @@ export default function Navbar() {
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-4 pr-2 bg-gray-100 text-white placeholder-gray-400 text-sm h-full focus:outline-none w-full"
+                className="pl-4 pr-2 bg-gray-100 text-black placeholder-gray-500 text-sm h-full focus:outline-none w-full"
               />
               <button
                 onClick={handleSearch}
@@ -76,7 +82,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right: Nav Links + User or Auth */}
           <div className="flex items-center gap-6">
             <Link href="/" className="text-white font-medium hover:underline">Home</Link>
             <Link href="/events" className="text-white font-medium hover:underline">Events</Link>
@@ -154,7 +159,7 @@ export default function Navbar() {
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-4 pr-2 bg-gray-100 text-white placeholder-gray-400 text-sm h-full focus:outline-none w-full"
+                className="pl-4 pr-2 bg-gray-100 text-black placeholder-gray-500 text-sm h-full focus:outline-none w-full"
               />
               <button
                 onClick={handleSearch}
@@ -189,7 +194,7 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-2 mt-2">
+              <div className="flex flex-col items-center gap-2 mt-2 w-full">
                 <Link href="/auth/login" className="w-full">
                   <span className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-md cursor-pointer block text-center">
                     Login

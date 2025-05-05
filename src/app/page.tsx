@@ -1,11 +1,11 @@
 "use client";
 
 // import Navbar from './components/atomics/navbar.module';
-import Footer from '@/components/footer';
-import HeroCarousel from '@/components/hero';
-import EventPilihan from './pages/featured-event';
-import CategoriesBadge from '@/components/badge-categories';
-import PopularEvents from './pages/popular-events'; // jangan lupa import PopularEvents!
+import Footer from "../app/component/molecules/footer";
+import HeroCarousel from "@/app/component/molecules/hero";
+import EventPilihan from "./pages/featured-event";
+import CategoriesBadge from "@/app/component/molecules/badge-categories";
+import PopularEvents from "./pages/popular-events"; // jangan lupa import PopularEvents!
 
 export default function Home() {
   return (

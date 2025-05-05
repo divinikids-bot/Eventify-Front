@@ -1,6 +1,6 @@
-import { notFound } from 'next/navigation';
-import EventDetails from '@/components/eventdetails';
-import { dummyEvents } from '@/app/data/dummy-events';
+import EventDetails from "@/app/component/molecules/eventdetails";
+import { dummyEvents } from "@/app/data/dummy-events";
+import { notFound } from "next/navigation";
 
 interface EventDetailPageProps {
   params: {
