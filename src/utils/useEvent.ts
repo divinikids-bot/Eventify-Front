@@ -30,7 +30,7 @@ export function useEvent() {
 
   async function updateEvent(eventId: number, updatedData: EventUpdatePayload) {
     try {
-      const response = await api.put(`/events/${eventId}`, updatedData);
+      const response = await api.put(`/update-events${eventId}`, updatedData);
       return {
         message: "Update event berhasil",
         success: true,
@@ -46,7 +46,7 @@ export function useEvent() {
 
   async function deleteEvent(eventId: number) {
     try {
-      const response = await api.delete(`/delete-events/${eventId}`);
+      const response = await api.delete(`/delete-events${eventId}`);
       return {
         message: "Event berhasil dihapus",
         success: true,

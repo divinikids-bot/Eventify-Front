@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { dummyEvents as importedDummyEvents } from "../../data/dummy-events";
+import { useEvents } from "@/types/event";
+import { dummyEvents as importedDummyEvents } from "../../../data/dummy-events";
 
 export interface Event {
   id: string;
@@ -12,7 +13,7 @@ export interface Event {
   description: string;
   category: "MUSIC" | "SPORTS" | "FOOD" | "BEAUTY";
   price: string;
-};
+}
 
 const categories = ["MUSIC", "SPORTS", "FOOD", "BEAUTY"];
 const EVENTS_PER_PAGE = 6;
