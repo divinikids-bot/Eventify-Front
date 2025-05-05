@@ -6,24 +6,39 @@ import Image from 'next/image';
 import { Menu, X, Search } from 'lucide-react';
 import axios from 'axios';
 import { getAuthCookie } from '@/app/lib/cookies';
+import Cookies from 'js-cookie';
+
+interface AuthInfo {
+  token?: string | null;
+  userId?: string | null;
+}
 
 export default function Navbar() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [authInfo, setAuthInfo] = useState<AuthInfo>(getAuthCookie() || {});
 
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedSearch(searchTerm), 500);
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
+    const currentAuth = getAuthCookie();
+    setAuthInfo(currentAuth || {});
+  }, []);
 
   useEffect(() => {
-    if (debouncedSearch) {
-      console.log('Search:', debouncedSearch);
+    if (authInfo?.token && authInfo?.userId) {
+      axios
+        .get(`http://localhost:8000/api/users/${authInfo.userId}`, {
+          headers: {
+            Authorization: `Bearer ${authInfo.token}`,
+          },
+        })
+        .then((res) => setUser(res.data.data))
+        .catch((err) => console.error('Failed to fetch user profile:', err));
+    } else {
+      setUser(null);
     }
-  }, [debouncedSearch]);
+  }, [authInfo?.token, authInfo?.userId]);
 
   const handleSearch = () => {
     if (!searchTerm.trim()) return alert('Please enter a search term!');
@@ -32,20 +47,6 @@ export default function Navbar() {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-
-  useEffect(() => {
-    const auth = getAuthCookie();
-    if (auth?.token) {
-      axios
-        .get(`http://localhost:8000/api/users/${auth.userId}`, {
-          headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
-        })
-        .then((res) => setUser(res.data.data))
-        .catch((err) => console.error('Failed to fetch user profile:', err));
-    }
-  }, []);
 
   return (
     <nav className="bg-[#172B4D] px-4 sm:px-6 py-3">
@@ -84,16 +85,14 @@ export default function Navbar() {
 
             {user ? (
               <div className="relative flex items-center gap-2">
-                {/* Menampilkan gambar profil jika ada */}
                 <Image
                   src={user.profileImageUrl || '/default-avatar.png'}
                   alt="Profile"
                   width={36}
                   height={36}
-                  className="rounded-full cursor-pointer"
+                  className="rounded-full cursor-pointer object-cover"
                   onClick={toggleDropdown}
                 />
-                {/* Tampilkan nama pengguna jika ada */}
                 <span className="text-white font-medium">{user.name || 'User'}</span>
 
                 {dropdownOpen && (
@@ -102,7 +101,9 @@ export default function Navbar() {
                     <Link href="/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
                     <button
                       onClick={() => {
-                        document.cookie = 'auth=; Max-Age=0';
+                        Cookies.remove('token');
+                        Cookies.remove('userId');
+                        Cookies.remove('role');
                         window.location.href = '/';
                       }}
                       className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
@@ -129,7 +130,80 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Navbar skipped for brevity */}
+        {/* Mobile Navbar */}
+        <div className="md:hidden flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/logofinale.png" alt="Logo" width={40} height={24} />
+            <span className="text-white font-bold text-lg">Eventify</span>
+          </Link>
+          <button onClick={toggleMobileMenu} className="text-white">
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-[#172B4D] shadow-md z-50 py-2 flex flex-col items-center">
+            <Link href="/" className="block text-white font-medium py-2 hover:underline">Home</Link>
+            <Link href="/pages/events" className="block text-white font-medium py-2 hover:underline">Events</Link>
+            <Link href="/pages/about" className="block text-white font-medium py-2 hover:underline">About</Link>
+            <Link href="/pages/contact" className="block text-white font-medium py-2 hover:underline">Contact</Link>
+            <div className="flex items-center border rounded-md border-white h-10 max-w-md w-full mx-4 my-2">
+              <input
+                type="text"
+                placeholder="Search events..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-4 pr-2 bg-gray-100 text-white placeholder-gray-400 text-sm h-full focus:outline-none w-full"
+              />
+              <button
+                onClick={handleSearch}
+                className="h-full px-4 flex items-center justify-center"
+              >
+                <Search size={18} className="text-white" />
+              </button>
+            </div>
+            {user ? (
+              <div className="flex flex-col items-center mt-2">
+                <Image
+                  src={user.profileImageUrl || '/default-avatar.png'}
+                  alt="Profile"
+                  width={36}
+                  height={36}
+                  className="rounded-full object-cover cursor-pointer"
+                  onClick={toggleDropdown}
+                />
+                <span className="text-white font-medium mt-1">{user.name || 'User'}</span>
+                <Link href="/profile" className="block text-white font-medium py-2 hover:underline">Profile</Link>
+                <Link href="/settings" className="block text-white font-medium py-2 hover:underline">Settings</Link>
+                <button
+                  onClick={() => {
+                    Cookies.remove('token');
+                    Cookies.remove('userId');
+                    Cookies.remove('role');
+                    window.location.href = '/';
+                  }}
+                  className="block text-white font-medium py-2 hover:underline text-red-600"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2 mt-2">
+                <Link href="/auth/login" className="w-full">
+                  <span className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-md cursor-pointer block text-center">
+                    Login
+                  </span>
+                </Link>
+                <Link href="/auth/sign-up" className="w-full">
+                  <span className="bg-white hover:bg-gray-100 text-black font-semibold px-4 py-2 rounded-md cursor-pointer block text-center">
+                    Sign Up
+                  </span>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

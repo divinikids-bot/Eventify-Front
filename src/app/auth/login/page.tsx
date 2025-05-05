@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast, Toaster } from "sonner";
-import { useLogin } from "@/utils/useLogin";
+import { useAuth } from "@/utils/useAuth";
 import { getAuthCookie } from "@/app/lib/cookies";
 
 export default function LoginPage() {
-  const { login } = useLogin();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +18,10 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!login) {
+      toast.error("Login function is not available.");
+      return;
+    }
     const result = await login(email, password);
     const authorize = getAuthCookie();
 
@@ -67,7 +71,7 @@ export default function LoginPage() {
           <p className="text-sm text-gray-600 mb-6">
             Tidak punya akun Eventify?{" "}
             <Link
-              href="/auth/sign-up"
+              href="/auth/signUp"
               className="text-blue-600 font-medium hover:underline"
             >
               Daftar

@@ -96,7 +96,7 @@ function TicketsSection() {
         </button>
       </div>
 
-      <div>
+      <div className="text-gray-500">
         {ticketTab === "active" ? (
           <p>Belum ada tiket untuk event aktif.</p>
         ) : (
