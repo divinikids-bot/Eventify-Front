@@ -141,7 +141,7 @@ const EventsPage = () => {
       </div>
 
       {/* Pagination */}
-      <div className="mt-6 flex justify-center items-center gap-2">
+      <div className="mt-6 flex justify-center items-center gap-2 ">
         {Array.from({ length: totalPages }).map((_, i) => (
           <button
             key={i}

@@ -18,20 +18,25 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     if (!login) {
       toast.error("Login function is not available.");
       return;
     }
+
     const result = await login(email, password);
     const authorize = getAuthCookie();
 
     if (result.success) {
       toast.success(result.message as string);
+
+      // 🔁 Replace redirect to force reload so Navbar can re-read cookie
       if (authorize.role === "USER") {
-        window.location.href = "/pages/dashboard/user";
+        window.location.replace("/pages/dashboard/user");
       } else {
-        window.location.href = "/pages/dashboard/promotor";
+        window.location.replace("/pages/dashboard/promotor");
       }
+
     } else {
       toast.error(
         typeof result.message === "string"
@@ -58,8 +63,7 @@ export default function LoginPage() {
             Tidak lagi ketinggalan event dan konser favoritmu
           </h2>
           <p className="text-xl text-center text-gray-600 font-semibold max-w-md">
-            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di
-            Eventify.
+            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di Eventify.
           </p>
         </div>
 
