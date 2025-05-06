@@ -41,8 +41,14 @@ export default function CreateEventForm({
       return;
     }
 
+    const eventData = {
+      ...formData,
+      promotorId: Number(userId), // Tambahkan promotorId
+    };
+    console.log("Data yang akan dikirim:", eventData); // Tambahkan log untuk memeriksa data
+
     try {
-      const res = await fetch("/api/events", {
+      const res = await fetch("/api/create-events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -51,9 +57,9 @@ export default function CreateEventForm({
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("Gagal mengirim data");
-      }
+      // if (!res.ok) {
+      //   throw new Error("Gagal mengirim data");
+      // }
 
       toast.success("Event berhasil dibuat!");
       onCancel();

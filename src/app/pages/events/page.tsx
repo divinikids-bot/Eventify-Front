@@ -4,25 +4,18 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEvent } from "@/utils/useEvent";
 import { toast, Toaster } from "sonner";
+import { EventCreatePayload } from "@/types/event.model";
 
-export interface Event {
-  id: string;
-  title: string;
-  date: string;
-  location: string;
-  description: string;
-  category: "music" | "sport" | "food" | "beauty";
-  price: string;
-}
-
-const categories: Event["category"][] = ["music", "sport", "food", "beauty"];
+const categories = ["MUSIC", "SPORTS", "FOOD", "BEAUTY"];
 const EVENTS_PER_PAGE = 6;
 
-const EventsPage = () => {
+export default function EventsPage() {
   const router = useRouter();
-  const [events, setEvents] = useState<Event[]>([]);
-  const {getAllEvent, deleteEvent, generateCoupon } = useEvent();
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventCreatePayload[]>([]);
+  const { getAllEvent, deleteEvent, generateCoupon } = useEvent();
+  const [filteredEvents, setFilteredEvents] = useState<EventCreatePayload[]>(
+    []
+  );
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -38,20 +31,21 @@ const EventsPage = () => {
   useEffect(() => {
     let filtered = events;
     if (selectedCategories.length > 0) {
-      filtered = events.filter((event) =>
-        selectedCategories.includes(event.category)
+      filtered = filtered.filter((events) =>
+        selectedCategories.includes(events.categoryEvents)
       );
     }
     setFilteredEvents(filtered);
     setCurrentPage(1);
   }, [selectedCategories, events]);
 
-  const startIndex = (currentPage - 1) * EVENTS_PER_PAGE;
-  const paginatedEvents = filteredEvents.slice(
-    startIndex,
-    startIndex + EVENTS_PER_PAGE
-  );
   const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
+  const validCurrentPage = Math.min(currentPage, totalPages || 1);
+
+  const paginatedEvents = filteredEvents.slice(
+    (validCurrentPage - 1) * EVENTS_PER_PAGE,
+    validCurrentPage * EVENTS_PER_PAGE
+  );
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories((prev) =>
@@ -66,7 +60,7 @@ const EventsPage = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 ">
+    <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Browse Events</h1>
 
       {/* Filter */}
@@ -96,23 +90,25 @@ const EventsPage = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {paginatedEvents.map((event) => (
           <div
-            key={event.id}
+            key={event.eventId}
             className="border border-gray-300 rounded-lg p-4 shadow"
           >
-            <h3 className="text-lg font-semibold">{event.title}</h3>
-            <p className="text-sm text-gray-600">{event.date}</p>
-            <p>{event.location}</p>
-            <p>{event.description}</p>
-            <p className="font-bold">Rp{event.price.toLocaleString()}</p>
-            <p className="text-sm italic">{event.category}</p>
+            <h3 className="text-lg fon  t-semibold">{event.nameEvents}</h3>
+            <p className="text-sm text-gray-600">{event.startDateEvents}</p>
+            <p>{event.locationEvents}</p>
+            <p>{event.descriptionEvents}</p>
+            <p className="font-bold">Rp{event.priceEvents.toLocaleString()}</p>
+            <p className="text-sm italic">{event.categoryEvents}</p>
 
             <div className="mt-3 flex gap-2">
               <button
                 onClick={async () => {
-                  const res = await deleteEvent(Number(event.id));
+                  const res = await deleteEvent(Number(event.eventId));
                   if (res.success) {
                     toast.success("Event berhasil dihapus");
-                    setEvents((prev) => prev.filter((e) => e.id !== event.id));
+                    setEvents((prev) =>
+                      prev.filter((e) => e.eventId !== event.eventId)
+                    );
                   } else {
                     toast.error("Gagal menghapus event");
                   }
@@ -124,7 +120,7 @@ const EventsPage = () => {
 
               <button
                 onClick={async () => {
-                  const res = await generateCoupon(Number(event.id));
+                  const res = await generateCoupon(Number(event.eventId));
                   if (res.success) {
                     toast.success(`Kupon berhasil dibuat: ${res.data?.code}`);
                   } else {
@@ -141,23 +137,22 @@ const EventsPage = () => {
       </div>
 
       {/* Pagination */}
-      <div className="mt-6 flex justify-center items-center gap-2 ">
-        {Array.from({ length: totalPages }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(i + 1)}
-            className={`px-3 py-1 rounded ${
-              currentPage === i + 1
-                ? "bg-blue-500 text-white"
-                : "bg-gray-100 text-gray-800"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
+      <div className="mt-6 flex justify-center items-center gap-2">
+        {totalPages > 1 &&
+          Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded ${
+                validCurrentPage === i + 1
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
       </div>
     </div>
   );
-};
-
-export default EventsPage;
+}

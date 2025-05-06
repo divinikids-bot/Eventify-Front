@@ -1,31 +1,42 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { api } from "@/app/lib/axios";
 import { FaCalendarAlt, FaTicketAlt, FaMoneyBillWave } from "react-icons/fa";
-import CreateEvent from "@/app/component/molecules/createEvent.module";
+import CreateEvent from "@/app/component/molecules/createEvent.form";
 import { useEvent } from "@/utils/useEvent";
-// import { getPromotorId } from "@/utils/getPromotorId";
 import { getAuthCookie } from "@/app/lib/cookies";
 import { toast } from "sonner";
 
 export default function PagePromotor() {
   const [showForm, setShowForm] = useState(false);
-  const [eventList, setEventList] = useState([]);
+  const [eventList, setEventList] = useState<[]>([]);
   const { getEventsByPromotor, deleteEvent } = useEvent();
 
   const fetchEvents = async () => {
-    const { userId, role } = getAuthCookie();
+    const { promotorId, role } = getAuthCookie(); // Get user data from cookies
 
-    if (!userId || role !== "PROMOTOR") {
+    if (!promotorId || role !== "PROMOTOR") {
       toast.error("Gagal mengambil data promotor. Silakan login ulang.");
       return;
     }
 
-    const result = await getEventsByPromotor(userId);
-    if (result.success) {
-      setEventList(result.data);
-    } else {
-      toast.error("Gagal memuat data event.");
+    try {
+      // Make an API request to fetch events
+      const response = await api.get(`/promotor/events/${promotorId}`, {
+        headers: {
+          Authorization: `Bearer ${getAuthCookie().token}`, // Use token for authorization
+        },
+      });
+
+      if (response.data.success) {
+        setEventList(response.data.data); // Set event data
+      } else {
+        toast.error("Gagal memuat data event.");
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan saat memuat data event.");
+      console.error(error);
     }
   };
 
@@ -33,17 +44,28 @@ export default function PagePromotor() {
     const confirmed = confirm("Yakin ingin menghapus event ini?");
     if (!confirmed) return;
 
-    const result = await deleteEvent(eventId);
-    if (result.success) {
-      toast.success("Event berhasil dihapus.");
-      fetchEvents();
-    } else {
-      toast.error("Gagal menghapus event.");
+    // Send delete request using axios
+    try {
+      const response = await api.delete(`/delete-events`, {
+        headers: {
+          Authorization: `Bearer ${getAuthCookie().token}`, // Use token for authorization
+        },
+      });
+
+      if (response.data.success) {
+        toast.success("Event berhasil dihapus.");
+        fetchEvents(); // Re-fetch events after delete
+      } else {
+        toast.error("Gagal menghapus event.");
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan saat menghapus event.");
+      console.error(error);
     }
   };
 
   useEffect(() => {
-    fetchEvents();
+    fetchEvents(); // Fetch events on component mount
   }, []);
 
   const StatCard = ({
@@ -137,32 +159,34 @@ export default function PagePromotor() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {eventList.map((event: any) => (
-                  <tr key={event.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">{event.nameEvents}</td>
-                    <td className="px-6 py-4">
-                      {new Date(event.startDateEvents).toLocaleDateString()} -{" "}
-                      {new Date(event.endDateEvents).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">{event.ticketsSold || 0}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {event.status || "Aktif"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">
-                      <button className="text-blue-600 hover:text-blue-900 mr-4">
-                        Ubah
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-900"
-                        onClick={() => handleDelete(event.id)}
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {eventList?.map((event: any) => {
+                  return (
+                    <tr key={event.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">{event.nameEvents}</td>
+                      <td className="px-6 py-4">
+                        {new Date(event.startDateEvents).toLocaleDateString()} -{" "}
+                        {new Date(event.endDateEvents).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">{event.ticketsSold || 0}</td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          {event.status || "Aktif"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-900 mr-4">
+                          Ubah
+                        </button>
+                        <button
+                          className="text-red-600 hover:text-red-900"
+                          onClick={() => handleDelete(event.id)}
+                        >
+                          Hapus
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
