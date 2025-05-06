@@ -68,7 +68,7 @@ export default function Navbar() {
               />
               <button
                 onClick={handleSearch}
-                className="h-full px-4 flex items-center justify-center"
+                className="h-full px-4 flex items-center justify-center text-grey-600"
               >
                 <Search size={18} className="text-white" />
               </button>

@@ -17,6 +17,7 @@ export function setAuthCookie(data: CookieParams) {
 export function getAuthCookie() {
     return {
         userId: Cookies.get('userId'),
+        promotorId: Cookies.get('promotorId'),
         token: Cookies.get('token'),
         role: Cookies.get('role')
     }

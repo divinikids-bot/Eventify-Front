@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import Footer from "../../component/footer";
+import Footer from "@/app/component/molecules/footer";
 
 const teamMembers = [
   {

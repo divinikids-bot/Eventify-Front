@@ -1,7 +1,7 @@
 "use client";
 
-// import Navbar from './components/atomics/navbar.module';
-import Footer from "@/components/footer";
+import Navbar from "./component/molecules/navbar.module";
+import Footer from "./component/molecules/footer";
 import HeroCarousel from "@/app/component/molecules/hero";
 import EventPilihan from "./pages/featured-event";
 import CategoriesBadge from "@/app/component/molecules/badge-categories";
@@ -10,7 +10,7 @@ import PopularEvents from "./pages/popular-events"; // jangan lupa import Popula
 export default function Home() {
   return (
     <>
-      {/* <Navbar /> */}
+      <Navbar />
 
       {/* Main Container */}
       <div className="min-h-screen pt-9 pb-20 bg-white">

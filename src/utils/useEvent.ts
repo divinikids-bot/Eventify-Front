@@ -1,14 +1,9 @@
 import { api } from "@/app/lib/axios";
+import { getAuthCookie } from "@/app/lib/cookies";
+import { EventCreatePayload } from "@/types/event.model";
+import { EventUpdatePayload } from "@/types/event.model";
 
 export function useEvent() {
-  interface EventUpdatePayload {
-    title?: string;
-    date?: string;
-    location?: string;
-    description?: string;
-    [key: string]: any; // opsional, kalau ingin lebih fleksibel
-  }
-
   async function getAllEvent() {
     try {
       const res = await api.get("/events");
@@ -21,13 +16,18 @@ export function useEvent() {
 
   async function getEventsByPromotor(promotorId: string) {
     try {
-      const response = await api.get(`/eventsByPromotor ${promotorId}`);
+      const result = getAuthCookie()
+      const response = await api.get(`/eventsByPromotor/${promotorId}`, {
+        headers: {
+          'Authorization' : `Bearer ${result.token}`
+        }
+      });
       return {
         data: response.data.data,
         success: true,
       };
     } catch (error) {
-      console.error("Gagal fetch event promotor:", error );
+      console.error("Gagal fetch event promotor:", error);
       return {
         data: [],
         success: false,
@@ -35,20 +35,24 @@ export function useEvent() {
     }
   }
 
-  async function createEvent(email: string, password: string) {
+  async function createEvent(EventCreate: EventCreatePayload) {
     try {
-      const response = await api.post("/create-events", { email, password });
-      const { access_token, role, id } = response.data.data;
-      console.log("=====respon data=====", response.data);
+      const { token } = getAuthCookie();
+      const response = await api.post("/create-events", EventCreate, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       return {
-        message: "Create event berhasil",
+        message: "Event berhasil dibuat",
         success: true,
+        data: response.data.data,
       };
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error("Create event error:", error);
       return {
-        message: error,
+        message: error.response?.data?.message || "Terjadi kesalahan",
         success: false,
       };
     }
