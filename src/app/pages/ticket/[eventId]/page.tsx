@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { dummyTickets, TicketOption } from '@/app/data/dummy-ticket';
+import { dummyEvents, EventData } from '@/app/data/dummy-events';
 
 export default function TicketPage({ params }: { params: { eventId: string } }) {
   const eventId = params.eventId;
@@ -10,11 +11,16 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
   const [tickets, setTickets] = useState<TicketOption[]>([]);
   const [cart, setCart] = useState<{ [ticketId: string]: number }>({});
   const [loading, setLoading] = useState(true);
+  const [event, setEvent] = useState<EventData | null>(null);
 
   useEffect(() => {
     if (eventId) {
       const filtered = dummyTickets.filter(ticket => ticket.eventId === eventId);
       setTickets(filtered);
+
+      const foundEvent = dummyEvents.find(e => e.id === eventId);
+      setEvent(foundEvent || null);
+
       setLoading(false);
     }
   }, [eventId]);
@@ -49,6 +55,22 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6 text-black">ONLINE SALES</h1>
 
+        {/* Event Info */}
+        {event && (
+          <div className="flex items-center gap-4 mb-8">
+            <img
+              src={event.imageUrl || '/placeholder.svg'}
+              alt={event.namaEvent}
+              className="w-24 h-24 rounded-lg object-cover"
+            />
+            <div>
+              <h2 className="text-xl font-bold text-black">{event.namaEvent}</h2>
+              <p className="text-sm text-gray-600">{event.lokasiEvent}</p>
+              <p className="text-sm text-gray-600">{event.tanggalEvent}</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* LEFT: Ticket Options */}
           <div className="flex-1 space-y-6">
@@ -60,7 +82,7 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
               return (
                 <div
                   key={ticket.id}
-                  className="text-black border rounded-xl p-4 shadow-sm bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between "
+                  className="text-black border rounded-xl p-4 shadow-sm bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <h2 className="text-lg font-semibold text-black">{ticket.title}</h2>
