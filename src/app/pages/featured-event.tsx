@@ -18,7 +18,7 @@ export default function EventPilihan() {
         const response = await api.get("/events");
         // Cek apakah `response.data.data` adalah array
         const fetchedData = response.data.data;
-        console.log("INI======", fetchedData);
+        // console.log("INI======", fetchedData);
         if (Array.isArray(fetchedData)) {
           setEvents(fetchedData);
         } else {

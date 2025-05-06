@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Head from 'next/head';
+import Navbar from '@/app/component/molecules/navbar.module';
+import Footer from '@/app/component/molecules/footer.module';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -35,6 +37,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Navbar/>
       <Head>
         <title>Contact Us | Eventify</title>
       </Head>
@@ -177,6 +180,7 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 }

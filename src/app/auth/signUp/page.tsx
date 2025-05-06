@@ -30,7 +30,7 @@ export default function SignUpPage() {
   };
 
   const [showPassword, setShowPassword] = useState(false);
-
+  const [hasReferral, setHasReferral] = useState(false);
   const toggleShowPassword = () => setShowPassword(!showPassword);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -194,23 +194,38 @@ export default function SignUpPage() {
             </div>
 
             {/* Referredby code */}
-            <div>
-              <label
-                className="block text-sm text-gray-600 font-medium mb-1"
-                htmlFor="referredby"
-              >
-                Masukkan kode referral (jika ada)
-              </label>
+            <div className="flex items-center gap-2">
               <input
-                type="text"
-                id="referredby"
-                name="referredby" // Pastikan name-nya sesuai dengan formData
-                className="w-full border rounded px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.referredBy}
-                onChange={handleChange}
-                placeholder="Masukkan kode referral (opsional)"
+                type="checkbox"
+                id="hasReferral"
+                checked={hasReferral}
+                onChange={() => setHasReferral(!hasReferral)}
+                className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
+              <label htmlFor="hasReferral" className="text-sm text-gray-600">
+                Saya punya kode referral
+              </label>
             </div>
+
+            {hasReferral && (
+              <div>
+                <label
+                  className="block text-sm text-gray-600 font-medium mb-1"
+                  htmlFor="referredBy"
+                >
+                  Masukkan kode referral
+                </label>
+                <input
+                  type="text"
+                  id="referredBy"
+                  name="referredBy"
+                  className="w-full border rounded px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.referredBy}
+                  onChange={handleChange}
+                  placeholder="Contoh: MILS123"
+                />
+              </div>
+            )}
 
             {/* Button */}
             <button

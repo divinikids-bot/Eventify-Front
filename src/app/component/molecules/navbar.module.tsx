@@ -84,7 +84,7 @@ export default function Navbar() {
 
           <div className="flex items-center gap-6">
             <Link href="/" className="text-white font-medium hover:underline">Home</Link>
-            <Link href="/events" className="text-white font-medium hover:underline">Events</Link>
+            <Link href="/pages/events" className="text-white font-medium hover:underline">Events</Link>
             <Link href="/pages/about" className="text-white font-medium hover:underline">About</Link>
             <Link href="/pages/contact" className="text-white font-medium hover:underline">Contact</Link>
 
