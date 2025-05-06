@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEvent } from "@/utils/useEvent";
 import { toast, Toaster } from "sonner";
 import { EventCreatePayload } from "@/types/event.model";
+import { api } from "@/app/lib/axios";
 
 const categories = ["MUSIC", "SPORTS", "FOOD", "BEAUTY"];
 const EVENTS_PER_PAGE = 6;
@@ -22,8 +23,9 @@ export default function EventsPage() {
   useEffect(() => {
     async function fetchEvents() {
       const result = await getAllEvent();
+      console.log("====Fetched events========", result);
       setEvents(result);
-      setFilteredEvents(result);
+      setFilteredEvents(result);  
     }
     fetchEvents();
   }, []);

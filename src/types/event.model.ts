@@ -1,5 +1,5 @@
 export interface EventCreatePayload {
-  eventId : number
+  eventId: number;
   nameEvents: string;
   categoryEvents: "MUSIC" | "SPORTS" | "FOOD" | "BEAUTY";
   priceEvents: string;
@@ -8,9 +8,16 @@ export interface EventCreatePayload {
   startDateEvents: string;
   endDateEvents: string;
   availableSeats: number;
-  coupon?: {
+  couponds?: {
+    code: string;
     discount: number;
+  }[];
+  promotor?: {
+    usersId: number;
+    name: string;
+    image?: string;
   };
+  imageUrl?: string
 }
 
 export interface EventUpdatePayload {

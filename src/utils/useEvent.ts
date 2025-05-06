@@ -7,7 +7,9 @@ export function useEvent() {
   async function getAllEvent() {
     try {
       const res = await api.get("/events");
-      return res.data; // asumsinya array of events
+      const events = res.data.data;
+      console.log("Events from backend:", events);
+      return Array.isArray(events) ? events : [];
     } catch (err) {
       console.error("Failed to fetch events:", err);
       return [];
@@ -16,11 +18,11 @@ export function useEvent() {
 
   async function getEventsByPromotor(promotorId: string) {
     try {
-      const result = getAuthCookie()
-      const response = await api.get(`/eventsByPromotor/${promotorId}`, {
+      const result = getAuthCookie();
+      const response = await api.get(`/promotor/events${promotorId}`, {
         headers: {
-          'Authorization' : `Bearer ${result.token}`
-        }
+          Authorization: `Bearer ${result.token}`,
+        },
       });
       return {
         data: response.data.data,
