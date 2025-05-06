@@ -1,9 +1,8 @@
 'use client';
 
-import { dummyEvents } from '@/data/dummy-events';
+import { dummyEvents } from '@/app/data/dummy-events';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 
 interface EventDetailsProps {
@@ -18,10 +17,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, isLoggedIn }) => {
   if (!event) return notFound();
 
   const handleBeliTiket = () => {
-    if (!isLoggedIn) {
-      router.push('/auth/login'); // Redirect ke halaman login
+    if (isLoggedIn) {
+      router.push(`/ticket/${eventId}`);
     } else {
-      router.push(`/payment/${event.id}`); // Redirect ke halaman pembayaran
+      router.push('/login');
     }
   };
 
@@ -35,7 +34,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, isLoggedIn }) => {
         <span className="text-gray-700 font-medium">{event.namaEvent}</span>
       </div>
 
-      {/* Banner Image */}
+      {/* Banner */}
       <div className="w-[970px] h-[250px] relative mx-auto rounded-lg overflow-hidden mb-8">
         <Image
           src={event.imageUrl || '/default-image.jpg'}

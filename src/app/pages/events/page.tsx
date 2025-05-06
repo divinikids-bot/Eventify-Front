@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEvent } from "@/utils/useEvent";
 import { toast, Toaster } from "sonner";
 import { EventCreatePayload } from "@/types/event.model";
-import { EventUpdatePayload } from "@/types/event.model";
 
 const categories = ["MUSIC", "SPORTS", "FOOD", "BEAUTY"];
 const EVENTS_PER_PAGE = 6;

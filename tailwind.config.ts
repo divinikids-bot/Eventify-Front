@@ -1,14 +1,19 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/**/*.{html,js,ts,jsx,tsx}', // Adjust content paths as needed
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+      },
+    },
   },
-  plugins: [
-    require('@tailwindcss/line-clamp'),
-  ],
-}
+  darkMode: 'media', // Enable dark mode based on the user's preference
+  plugins: [],
+};
+
 export default config;
