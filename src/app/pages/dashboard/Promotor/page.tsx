@@ -7,30 +7,30 @@ import CreateEvent from "@/app/component/molecules/createEvent.form";
 import { useEvent } from "@/utils/useEvent";
 import { getAuthCookie } from "@/app/lib/cookies";
 import { toast } from "sonner";
+import { EventList } from "@/types/event.model";
 
 export default function PagePromotor() {
   const [showForm, setShowForm] = useState(false);
-  const [eventList, setEventList] = useState<[]>([]);
+  const [eventList, setEventList] = useState<EventList[]>([]);
   const { getEventsByPromotor, deleteEvent } = useEvent();
 
   const fetchEvents = async () => {
-    const { promotorId, role } = getAuthCookie(); // Get user data from cookies
+    const { token, role } = getAuthCookie();
 
-    if (!promotorId || role !== "PROMOTOR") {
+    if (!token || role !== "PROMOTOR") {
       toast.error("Gagal mengambil data promotor. Silakan login ulang.");
       return;
     }
 
     try {
-      // Make an API request to fetch events
-      const response = await api.get(`/promotor/events/${promotorId}`, {
+      const response = await api.get("/promotor/events", {
         headers: {
-          Authorization: `Bearer ${getAuthCookie().token}`, // Use token for authorization
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      if (response.data.success) {
-        setEventList(response.data.data); // Set event data
+      if (response.status === 200) {
+        setEventList(response.data.data);
       } else {
         toast.error("Gagal memuat data event.");
       }
@@ -159,34 +159,32 @@ export default function PagePromotor() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {eventList?.map((event: any) => {
-                  return (
-                    <tr key={event.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">{event.nameEvents}</td>
-                      <td className="px-6 py-4">
-                        {new Date(event.startDateEvents).toLocaleDateString()} -{" "}
-                        {new Date(event.endDateEvents).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4">{event.ticketsSold || 0}</td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          {event.status || "Aktif"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium">
-                        <button className="text-blue-600 hover:text-blue-900 mr-4">
-                          Ubah
-                        </button>
-                        <button
-                          className="text-red-600 hover:text-red-900"
-                          onClick={() => handleDelete(event.id)}
-                        >
-                          Hapus
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {eventList?.map((event) => (
+                  <tr key={event.eventId} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">{event.nameEvents}</td>
+                    <td className="px-6 py-4">
+                      {new Date(event.startDateEvents).toLocaleDateString()} -{" "}
+                      {new Date(event.endDateEvents).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">{event.ticketsSold || 0}</td>
+                    <td className="px-6 py-4">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        {event.status || "Aktif"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium">
+                      <button className="text-blue-600 hover:text-blue-900 mr-4">
+                        Ubah
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDelete(event.eventId)}
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

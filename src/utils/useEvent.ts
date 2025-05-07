@@ -16,12 +16,12 @@ export function useEvent() {
     }
   }
 
-  async function getEventsByPromotor(promotorId: string) {
+  async function getEventsByPromotor() {
     try {
-      const result = getAuthCookie();
-      const response = await api.get(`/promotor/events${promotorId}`, {
+      const { token } = getAuthCookie();
+      const response = await api.get("/promotor/events", {
         headers: {
-          Authorization: `Bearer ${result.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       return {

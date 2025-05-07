@@ -1,5 +1,16 @@
+export interface Coupond {
+  code: string;
+  discount: number;
+}
+
+export interface Promotor {
+  usersId: number;
+  name: string;
+  image?: string;
+}
+
 export interface EventCreatePayload {
-  eventId: number;
+  eventId?: number;
   nameEvents: string;
   categoryEvents: "MUSIC" | "SPORTS" | "FOOD" | "BEAUTY";
   priceEvents: string;
@@ -8,24 +19,20 @@ export interface EventCreatePayload {
   startDateEvents: string;
   endDateEvents: string;
   availableSeats: number;
-  couponds?: {
-    code: string;
-    discount: number;
-  }[];
-  promotor?: {
-    usersId: number;
-    name: string;
-    image?: string;
-  };
-  imageUrl?: string
+  couponds?: Coupond[];
+  promotor?: Promotor;
+  imageUrl?: string;
 }
 
-export interface EventUpdatePayload {
-  id: string;
-  title: string;
-  date: string;
-  location: string;
-  description: string;
-  category: "MUSIC" | "SPORTS" | "FOOD" | "BEAUTY";
-  price: string;
+export interface EventList {
+  eventId: number;
+  nameEvents: string;
+  startDateEvents: string;
+  endDateEvents: string;
+  ticketsSold: number;
+  status: string;
+}
+
+export interface EventUpdatePayload extends Partial<EventCreatePayload> {
+  eventId: number;
 }

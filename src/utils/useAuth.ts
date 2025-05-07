@@ -3,12 +3,14 @@ import { setAuthCookie } from "@/app/lib/cookies";
 
 export function useAuth() {
   interface SignUpPayload {
-    name: string;
-    email: string;
-    password: string;
-    role: "USER" | "PROMOTOR";
-    referralCode?: string;
-    referredBy?: string;
+
+      name: string;
+      email: string;
+      password: string;
+      role: "USER" | "PROMOTOR";
+      referralCode?: string;
+      referredBy?: string;
+    
   }
 
   function validateSignUp(data: SignUpPayload) {
@@ -35,9 +37,20 @@ export function useAuth() {
       return { message: errorMessage, success: false };
     }
 
+    //>>>>>>>>>>>>>>>>>>>>>>>>> ada error disini saat signUp <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    console.log("========Data Cek=========", data);
     try {
-      const response = await api.post("/users", data);
-      const { access_token, role, id } = response.data.data;
+      const response = await api.post("/users", 
+         {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          role:data.role,
+          referralCode: data.referralCode,
+          referredBy: data.referredBy
+        }
+    );
+      // const { access_token, role, id } = response.data.data;
       console.log("=====respon data=====", response.data);
 
       return {
@@ -48,7 +61,7 @@ export function useAuth() {
       console.error("Sign Up Error: ", error);
 
       const errorMessage =
-        error?.response?.data?.message || "Something went wrong";
+        error?.response?.data?.message || "Something went wrong :" + error;
 
       return {
         message: errorMessage,

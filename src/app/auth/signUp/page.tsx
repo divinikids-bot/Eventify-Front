@@ -44,16 +44,19 @@ export default function SignUpPage() {
       return;
     }
 
+    console.log("FORMDATA>>>>>>>>>", formData);
     try {
       // Kirim data ke API untuk sign up
       const result = await signUp({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role === "USER" ? "USER" : "PROMOTOR",
-        referralCode: formData.referralCode || "",
-        referredBy: formData.referredBy || "",
+        name: String(formData.name),
+        email: String(formData.email),
+        password: String(formData.password),
+        role: String(formData.role) === "USER" ? "USER" : "PROMOTOR",
+        referralCode: String(formData.referralCode) || "",
+        referredBy: String(formData.referredBy) || "",
       });
+
+      console.log("cek result : ", result);
 
       if (result.success) {
         toast.success(result.message as string); // Notifikasi sukses
@@ -72,7 +75,7 @@ export default function SignUpPage() {
       if (error instanceof Error) {
         toast.error(error.message); // Menampilkan pesan error dari instance Error
       } else {
-        toast.error("Registration failed."); // Jika error bukan instance Error
+        toast.error("Registration failed....."); // Jika error bukan instance Error
       }
     } finally {
       setIsSubmitting(false);
