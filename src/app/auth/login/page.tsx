@@ -19,6 +19,23 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    // Validasi input
+    if (!email || !password) {
+      toast.error("Email dan password wajib diisi.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Format email tidak valid.");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password minimal 6 karakter.");
+      return;
+    }
+
     if (!login) {
       toast.error("Login function is not available.");
       return;
@@ -30,13 +47,11 @@ export default function LoginPage() {
     if (result.success) {
       toast.success(result.message as string);
 
-      // 🔁 Replace redirect to force reload so Navbar can re-read cookie
       if (authorize.role === "USER") {
-        window.location.replace("/pages/dashboard/user");
+        window.location.href = "/";
       } else {
-        window.location.replace("/pages/dashboard/promotor");
+        window.location.href = "/pages/dashboard/promotor";
       }
-
     } else {
       toast.error(
         typeof result.message === "string"

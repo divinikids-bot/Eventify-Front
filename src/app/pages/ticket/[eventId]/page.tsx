@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { dummyTickets, TicketOption } from '@/app/data/dummy-ticket';
 import { dummyEvents, EventData } from '@/app/data/dummy-events';
+import { Calendar, MapPin } from 'lucide-react';
 
 export default function TicketPage({ params }: { params: { eventId: string } }) {
   const eventId = params.eventId;
@@ -48,25 +49,35 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
     router.push(`/checkout?eventId=${eventId}&cart=${encodeURIComponent(JSON.stringify(cart))}`);
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="p-6 text-gray-600">Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6 text-black">ONLINE SALES</h1>
+    <div className="min-h-screen bg-gray-50">
+      {/* HEADER */}
+      <div className="bg-gradient-to-br from-[#172B4D] to-[#172B4D] text-white py-8 px-6">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold">Beli Tiket</h1>
+          <p className="text-sm opacity-90 mt-1">Pilih tiket untuk acara favoritmu</p>
+        </div>
+      </div>
 
-        {/* Event Info */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* EVENT INFO */}
         {event && (
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
             <img
               src={event.imageUrl || '/placeholder.svg'}
               alt={event.namaEvent}
-              className="w-24 h-24 rounded-lg object-cover"
+              className="w-[970px] h-[250px] rounded-lg object-cover"
             />
             <div>
               <h2 className="text-xl font-bold text-black">{event.namaEvent}</h2>
-              <p className="text-sm text-gray-600">{event.lokasiEvent}</p>
-              <p className="text-sm text-gray-600">{event.tanggalEvent}</p>
+              <div className="flex items-center text-sm text-gray-600 gap-2 mt-1">
+                <MapPin size={14} /> {event.lokasiEvent}
+              </div>
+              <div className="flex items-center text-sm text-gray-600 gap-2">
+                <Calendar size={14} /> {event.tanggalEvent}
+              </div>
             </div>
           </div>
         )}
@@ -82,61 +93,56 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
               return (
                 <div
                   key={ticket.id}
-                  className="text-black border rounded-xl p-4 shadow-sm bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between"
+                  className="text-black border rounded-xl p-5 shadow-sm bg-white transition hover:shadow-md"
                 >
-                  <div>
-                    <h2 className="text-lg font-semibold text-black">{ticket.title}</h2>
-                    <p className="text-sm text-gray-600">
-                      Rp. {ticket.price.toLocaleString('id-ID')} belum termasuk PPN
-                    </p>
-
-                    {ticket.saleStartDate && isNotStarted && (
-                      <p className="text-xs text-blue-600 mt-1">
-                        Penjualan dimulai pada{' '}
-                        {new Date(ticket.saleStartDate).toLocaleString('id-ID')}
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                    <div>
+                      <h2 className="text-lg font-semibold">{ticket.title}</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">
+                        Rp {ticket.price.toLocaleString('id-ID')} belum termasuk PPN
                       </p>
-                    )}
-                    {ticket.saleEndDate && !isNotStarted && (
-                      <p className="text-xs text-blue-600 mt-1">
-                        Penjualan berakhir pada{' '}
-                        {new Date(ticket.saleEndDate).toLocaleString('id-ID')}
-                      </p>
-                    )}
 
-                    <div className="mt-2 text-lg font-bold text-black">
-                      Rp. {discountedPrice.toLocaleString('id-ID')}
+                      {ticket.discountPercentage && ticket.discountPercentage > 0 && (
+                        <div className="mt-1 text-sm text-gray-500">
+                          <span className="line-through mr-2">
+                            Rp {ticket.price.toLocaleString('id-ID')}
+                          </span>
+                          <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">
+                            -{ticket.discountPercentage}%
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="mt-2 font-bold text-blue-600 text-lg">
+                        Rp {discountedPrice.toLocaleString('id-ID')}
+                      </div>
+
+                      <div className="text-xs text-gray-500 mt-1">
+                        {isNotStarted
+                          ? `Penjualan dimulai: ${new Date(ticket.saleStartDate!).toLocaleString('id-ID')}`
+                          : `Penjualan berakhir: ${new Date(ticket.saleEndDate!).toLocaleString('id-ID')}`}
+                      </div>
                     </div>
 
-                    {(ticket.discountPercentage ?? 0) > 0 && (
-                      <div className="text-sm text-gray-500">
-                        <span className="line-through mr-2">
-                          Rp. {ticket.price.toLocaleString('id-ID')}
+                    <div>
+                      {isNotStarted ? (
+                        <span className="bg-red-100 text-red-600 text-sm px-3 py-1 rounded font-medium inline-block mt-2 sm:mt-0">
+                          Belum dimulai
                         </span>
-                        <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded">
-                          -{ticket.discountPercentage}%
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-4 sm:mt-0 flex items-center gap-3">
-                    {isNotStarted ? (
-                      <span className="bg-red-100 text-red-600 text-sm px-3 py-1 rounded font-medium">
-                        Belum dimulai
-                      </span>
-                    ) : (
-                      <select
-                        className="border rounded px-3 py-2"
-                        value={cart[ticket.id] || 0}
-                        onChange={e => handleQuantityChange(ticket.id, parseInt(e.target.value))}
-                      >
-                        {[...Array((ticket.quota ?? 10) + 1).keys()].map(qty => (
-                          <option key={qty} value={qty}>
-                            {qty}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+                      ) : (
+                        <select
+                          className="border rounded px-3 py-2 text-sm mt-2 sm:mt-0"
+                          value={cart[ticket.id] || 0}
+                          onChange={e => handleQuantityChange(ticket.id, parseInt(e.target.value))}
+                        >
+                          {[...Array((ticket.quota ?? 10) + 1).keys()].map(qty => (
+                            <option key={qty} value={qty}>
+                              {qty} tiket
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -145,7 +151,7 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
 
           {/* RIGHT: Order Summary */}
           <div className="w-full lg:w-[320px] space-y-4 h-fit">
-            <div className="p-4 border rounded-xl bg-white shadow-sm text-black">
+            <div className="p-5 border rounded-xl bg-white shadow text-black">
               <h3 className="text-lg font-semibold mb-3">Ringkasan</h3>
 
               {Object.entries(cart).map(([ticketId, qty]) => {
@@ -158,16 +164,16 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
                   <div key={ticketId} className="flex justify-between text-sm text-gray-700 mb-1">
                     <span>{ticket.title}</span>
                     <span>
-                      {qty} tiket x Rp{price.toLocaleString('id-ID')}
+                      {qty} x Rp {price.toLocaleString('id-ID')}
                     </span>
                   </div>
                 );
               })}
 
               <div className="border-t mt-3 pt-3">
-                <p className="text-sm text-gray-700">Jumlah (Total Tiket)</p>
+                <p className="text-sm text-gray-600">Total Bayar</p>
                 <p className="text-xl font-bold text-blue-700">
-                  Rp{calculateTotal().toLocaleString('id-ID')}
+                  Rp {calculateTotal().toLocaleString('id-ID')}
                 </p>
               </div>
             </div>
@@ -178,7 +184,7 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
               className={`w-full py-3 rounded-xl text-sm font-semibold transition ${
                 calculateTotal() === 0
                   ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-[#172B4D] hover:bg-blue-900 text-white'
               }`}
             >
               Pesan Sekarang
