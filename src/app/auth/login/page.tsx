@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const toggleShowPassword = () => setShowPassword(!showPassword);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -41,23 +41,33 @@ export default function LoginPage() {
       return;
     }
 
-    const result = await login(email, password);
-    const authorize = getAuthCookie();
+    setIsLoading(true);
 
-    if (result.success) {
-      toast.success(result.message as string);
+    try {
+      const result = await login(email, password);
+      const authorize = getAuthCookie();
 
-      if (authorize.role === "USER") {
-        window.location.href = "/";
+      if (result.success) {
+        toast.success(result.message as string);
+
+        setTimeout(() => {
+          if (authorize.role === "USER") {
+            window.location.replace("/pages/dashboard/user");
+          } else {
+            window.location.replace("/pages/dashboard/promotor");
+          }
+        }, 500);
       } else {
-        window.location.href = "/pages/dashboard/promotor";
+        toast.error(
+          typeof result.message === "string"
+            ? result.message
+            : JSON.stringify(result.message)
+        );
       }
-    } else {
-      toast.error(
-        typeof result.message === "string"
-          ? result.message
-          : JSON.stringify(result.message)
-      );
+    } catch (error) {
+      toast.error("Terjadi kesalahan saat login.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -78,7 +88,8 @@ export default function LoginPage() {
             Tidak lagi ketinggalan event dan konser favoritmu
           </h2>
           <p className="text-xl text-center text-gray-600 font-semibold max-w-md">
-            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di Eventify.
+            Gabung dan rasakan kemudahan bertransaksi dan mengelola event di
+            Eventify.
           </p>
         </div>
 
@@ -151,9 +162,36 @@ export default function LoginPage() {
             {/* Button */}
             <button
               type="submit"
-              className="w-full bg-blue-800 hover:bg-blue-900 text-white font-semibold py-2 rounded"
+              className="w-full bg-blue-800 hover:bg-blue-900 text-white font-semibold py-2 rounded flex items-center justify-center"
+              disabled={isLoading}
             >
-              Masuk
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"
+                    ></path>
+                  </svg>
+                  <span>Memproses...</span>
+                </span>
+              ) : (
+                "Masuk"
+              )}
             </button>
           </form>
         </div>

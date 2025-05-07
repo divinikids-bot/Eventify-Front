@@ -1,7 +1,7 @@
 "use client";
 
 // import Navbar from './components/atomics/navbar.module';
-import Footer from "../app/component/molecules/footer";
+import Footer from "./component/molecules/footer.module";
 import HeroCarousel from "@/app/component/molecules/hero";
 import EventPilihan from "./pages/featured-event";
 import CategoriesBadge from "@/app/component/molecules/badge-categories";

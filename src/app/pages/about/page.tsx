@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Navbar from "@/app/component/molecules/navbar.module";
 
-import Footer from "@/app/component/molecules/footer";
+import Footer from "@/app/component/molecules/footer.module";
 
 const teamMembers = [
   {
@@ -55,6 +56,7 @@ const values = [
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
+      <Navbar/>
       {" "}
       {/* Tambah bg-white di sini */}
       <main className="flex-1 flex flex-col space-y-16">

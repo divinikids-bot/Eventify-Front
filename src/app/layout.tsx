@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-// Import Client Layout here, which includes the SessionProvider
-import ClientLayout from "./pages/account/ClientLayout"; // Adjust path as needed
+
+import ClientLayout from "./pages/account/ClientLayout"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

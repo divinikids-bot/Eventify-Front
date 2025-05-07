@@ -30,7 +30,7 @@ export default function SignUpPage() {
   };
 
   const [showPassword, setShowPassword] = useState(false);
-
+  const [hasReferral, setHasReferral] = useState(false);
   const toggleShowPassword = () => setShowPassword(!showPassword);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -44,16 +44,19 @@ export default function SignUpPage() {
       return;
     }
 
+    console.log("FORMDATA>>>>>>>>>", formData);
     try {
       // Kirim data ke API untuk sign up
       const result = await signUp({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role === "USER" ? "USER" : "PROMOTOR",
-        referralCode: formData.referralCode || "",
-        referredBy: formData.referredBy || "",
+        name: String(formData.name),
+        email: String(formData.email),
+        password: String(formData.password),
+        role: String(formData.role) === "USER" ? "USER" : "PROMOTOR",
+        referralCode: String(formData.referralCode) || "",
+        referredBy: String(formData.referredBy) || "",
       });
+
+      console.log("cek result : ", result);
 
       if (result.success) {
         toast.success(result.message as string); // Notifikasi sukses
@@ -72,7 +75,7 @@ export default function SignUpPage() {
       if (error instanceof Error) {
         toast.error(error.message); // Menampilkan pesan error dari instance Error
       } else {
-        toast.error("Registration failed."); // Jika error bukan instance Error
+        toast.error("Registration failed....."); // Jika error bukan instance Error
       }
     } finally {
       setIsSubmitting(false);
@@ -194,23 +197,38 @@ export default function SignUpPage() {
             </div>
 
             {/* Referredby code */}
-            <div>
-              <label
-                className="block text-sm text-gray-600 font-medium mb-1"
-                htmlFor="referredby"
-              >
-                Masukkan kode referral (jika ada)
-              </label>
+            <div className="flex items-center gap-2">
               <input
-                type="text"
-                id="referredby"
-                name="referredby" // Pastikan name-nya sesuai dengan formData
-                className="w-full border rounded px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.referredBy}
-                onChange={handleChange}
-                placeholder="Masukkan kode referral (opsional)"
+                type="checkbox"
+                id="hasReferral"
+                checked={hasReferral}
+                onChange={() => setHasReferral(!hasReferral)}
+                className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
+              <label htmlFor="hasReferral" className="text-sm text-gray-600">
+                Saya punya kode referral
+              </label>
             </div>
+
+            {hasReferral && (
+              <div>
+                <label
+                  className="block text-sm text-gray-600 font-medium mb-1"
+                  htmlFor="referredBy"
+                >
+                  Masukkan kode referral
+                </label>
+                <input
+                  type="text"
+                  id="referredBy"
+                  name="referredBy"
+                  className="w-full border rounded px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.referredBy}
+                  onChange={handleChange}
+                  placeholder="Contoh: MILS123"
+                />
+              </div>
+            )}
 
             {/* Button */}
             <button

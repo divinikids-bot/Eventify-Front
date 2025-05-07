@@ -6,21 +6,10 @@ import "swiper/css";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "../lib/axios";
-
-export interface EventData {
-  id: string;
-  namaEvent: string;
-  tanggalEvent: string;
-  hargaEvent?: number;
-  imageUrl?: string;
-  eventOrganizer: string;
-  organizer?: {
-    image: string;
-  };
-}
+import { EventCreatePayload } from "@/types/event.model";
 
 export default function EventPilihan() {
-  const [events, setEvents] = useState<EventData[]>([]);
+  const [events, setEvents] = useState<EventCreatePayload[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +18,7 @@ export default function EventPilihan() {
         const response = await api.get("/events");
         // Cek apakah `response.data.data` adalah array
         const fetchedData = response.data.data;
+        // console.log("INI======", fetchedData);
         if (Array.isArray(fetchedData)) {
           setEvents(fetchedData);
         } else {
@@ -58,17 +48,17 @@ export default function EventPilihan() {
           1280: { slidesPerView: 4 },
         }}
       >
-        {events.map((event) => (
-          <SwiperSlide key={event.id} className="h-auto">
+        {events.map((events) => (
+          <SwiperSlide key={events.eventId} className="h-auto">
             <Link
-              href={`/pages/events/${event.id}`}
+              href={`/pages/events/${events.eventId}`}
               className="block h-full px-2"
             >
               <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-300 hover:shadow-xl transition duration-300">
                 <div className="relative w-full h-[200px]">
                   <Image
-                    src={event.imageUrl || "/placeholder.svg"}
-                    alt={event.namaEvent}
+                    src={events.imageUrl || "/placeholder.svg"}
+                    alt={events.nameEvents}
                     fill
                     className="object-cover"
                   />
@@ -76,27 +66,27 @@ export default function EventPilihan() {
                 <div className="p-3 flex flex-col justify-between flex-grow">
                   <div>
                     <h3 className="text-lg text-gray-600 font-semibold truncate">
-                      {event.namaEvent}
+                      {events.nameEvents}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {event.tanggalEvent}
+                      {events.startDateEvents}
                     </p>
-                    {event.hargaEvent !== undefined && (
+                    {events.priceEvents !== undefined && (
                       <p className="text-base text-gray-600 font-bold mt-2">
-                        Rp{event.hargaEvent.toLocaleString()}
+                        Rp{events.priceEvents.toLocaleString()}
                       </p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-4 pt-2 border-t">
                     <Image
-                      src={event.organizer?.image || "/placeholder.svg"}
-                      alt={event.eventOrganizer || "Event Organizer"}
+                      src={events.promotor?.image || "/placeholder.svg"}
+                      alt={typeof events.promotor === "string" ? events.promotor : events.promotor?.name || "Event Organizer"}
                       width={30}
                       height={30}
                       className="rounded-full object-cover"
                     />
                     <span className="text-sm text-gray-700 truncate">
-                      {event.eventOrganizer}
+                      {typeof events.promotor === "string" ? events.promotor : events.promotor?.name || "Event Organizer"}
                     </span>
                   </div>
                 </div>
