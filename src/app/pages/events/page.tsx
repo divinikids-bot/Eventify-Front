@@ -7,7 +7,7 @@ import { EventCreatePayload } from "@/types/event.model";
 import Navbar from "@/app/component/navbar";
 import Footer from "@/app/component/molecules/footer.module";
 
-// Enum for categories
+
 enum Category {
   MUSIC = "MUSIC",
   SPORTS = "SPORTS",
@@ -29,9 +29,18 @@ export default function EventsPage() {
 
   useEffect(() => {
     async function fetchEvents() {
-      const result = await getAllEvent();
-      setEvents(result);
-      setFilteredEvents(result);
+      try {
+        const result = await getAllEvent();
+        console.log("Fetched events:", result); // Log the result to debug
+        setEvents(result);
+        setFilteredEvents(result);
+
+        // Log unique locations for debugging
+        const uniqueLocations = Array.from(new Set(result.map((e) => e.locationEvents)));
+        console.log("Unique Locations:", uniqueLocations); // Ensure all locations are fetched
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
     }
     fetchEvents();
   }, []);
@@ -41,6 +50,8 @@ export default function EventsPage() {
     ? Array.from(new Set(events.map((e) => e.categoryEvents)))
     : [];
 
+  console.log("Available event categories:", eventCategories); // Log available categories for debugging
+
   const categories = [
     Category.MUSIC,
     Category.SPORTS,
@@ -49,10 +60,15 @@ export default function EventsPage() {
     ...eventCategories.filter((cat) => !Object.values(Category).includes(cat as Category)),
   ];
 
+  console.log("Categories for filter:", categories); // Log selected categories
+
+  // Get unique locations, ensuring the list has all locations
   const uniqueLocations =
     events.length > 0
       ? Array.from(new Set(events.map((e) => e.locationEvents))).sort()
       : [];
+
+  console.log("Unique Locations for filter:", uniqueLocations); // Log locations for debugging
 
   const applyFilters = () => {
     let filtered = [...events];
@@ -199,7 +215,7 @@ export default function EventsPage() {
                     <p className="font-bold text-md">Rp{Number(event.priceEvents).toLocaleString()}</p>
                     <button
                       className="bg-yellow-400 hover:bg-yellow-500 text-sm px-3 py-1 rounded font-semibold"
-                      onClick={() => router.push(`/pages/event/${event.eventId}`)}
+                      onClick={() => router.push(`/pages/events/${event.eventId}`)}
                     >
                       Get Ticket
                     </button>
