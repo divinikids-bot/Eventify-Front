@@ -44,7 +44,7 @@ export default function SignUpPage() {
       return;
     }
 
-    console.log("FORMDATA>>>>>>>>>", formData);
+    console.log("Form Data :", formData);
     try {
       // Kirim data ke API untuk sign up
       const result = await signUp({
@@ -75,7 +75,7 @@ export default function SignUpPage() {
       if (error instanceof Error) {
         toast.error(error.message); // Menampilkan pesan error dari instance Error
       } else {
-        toast.error("Registration failed....."); // Jika error bukan instance Error
+        toast.error("Registration failed"); // Jika error bukan instance Error
       }
     } finally {
       setIsSubmitting(false);

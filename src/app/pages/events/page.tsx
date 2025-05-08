@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEvent } from "@/utils/useEvent";
 import { toast, Toaster } from "sonner";
 import { EventCreatePayload } from "@/types/event.model";
-import Navbar from "@/app/component/molecules/navbar.module";
+import Navbar from "@/app/component/navbar/navbar.module";
 import Footer from "@/app/component/molecules/footer.module";
 
 const categories = ["MUSIC", "SPORTS", "FOOD", "BEAUTY"];

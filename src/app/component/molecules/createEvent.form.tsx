@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { getAuthCookie } from "@/app/lib/cookies";
 import { toast } from "sonner";
 import { EventCreatePayload } from "@/types/event.model";
+import { api } from "@/app/lib/axios";
 
 export default function CreateEventForm({
   onCancel,
@@ -50,8 +51,15 @@ export default function CreateEventForm({
     }
 
     const form = new FormData();
+
+    // Periksa dan format tanggal sebelum dikirim
     Object.entries(formData).forEach(([key, value]) => {
-      form.append(key, String(value));
+      if (key === "startDateEvents" || key === "endDateEvents") {
+        const isoDate = new Date(value).toISOString();
+        form.append(key, isoDate);
+      } else {
+        form.append(key, String(value));
+      }
     });
 
     if (imageFile) {
@@ -64,31 +72,31 @@ export default function CreateEventForm({
     }
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/create-events`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: form,
-        }
-      );
+      const res = await api.post("/create-events", form, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-      const data = await res.json();
+      const data = res.data;
 
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         toast.error("Gagal membuat event.");
         setLoading(false);
         return;
       }
 
       toast.success("Event berhasil dibuat!");
-      onCancel();
       onCreated?.();
+      setTimeout(() => {
+        onCancel();
+      }, 300);
+      
     } catch (err) {
       toast.error("Terjadi kesalahan.");
       console.error(err);
+    } finally {
       setLoading(false);
     }
   };
@@ -204,7 +212,7 @@ export default function CreateEventForm({
 // Simple reusable input components
 function Input({ label, name, type = "text", ...rest }: any) {
   return (
-    <div>
+    <div className="">
       <p>{label}</p>
       <input
         type={type}

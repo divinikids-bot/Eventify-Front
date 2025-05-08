@@ -8,6 +8,8 @@ import { useEvent } from "@/utils/useEvent";
 import { getAuthCookie } from "@/app/lib/cookies";
 import { toast } from "sonner";
 import { EventList } from "@/types/event.model";
+import Navbar from "@/app/component/navbar/navbar.module";
+import Footer from "@/app/component/molecules/footer.module";
 
 export default function PagePromotor() {
   const [showForm, setShowForm] = useState(false);
@@ -89,7 +91,8 @@ export default function PagePromotor() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-700">
+    <div className="min-h-screen bg-gray-100 text-gray-700 pb-20 pt-20">
+      <Navbar />
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">
@@ -122,7 +125,8 @@ export default function PagePromotor() {
             onCancel={() => setShowForm(false)}
             onCreated={() => {
               fetchEvents();
-              setShowForm(false);
+              toast.success("Event berhasil dibuat!");
+              setShowForm(true);
             }}
           />
         )}
@@ -190,6 +194,7 @@ export default function PagePromotor() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

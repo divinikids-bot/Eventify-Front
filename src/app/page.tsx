@@ -6,7 +6,7 @@ import HeroCarousel from "@/app/component/molecules/hero";
 import EventPilihan from "./pages/featured-event";
 import CategoriesBadge from "@/app/component/molecules/badge-categories";
 import PopularEvents from "./pages/popular-events"; // jangan lupa import PopularEvents!
-import Navbar from "./component/molecules/navbar.module";
+import Navbar from "./component/navbar/navbar.module";
 
 export default function Home() {
   return (
