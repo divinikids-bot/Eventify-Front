@@ -8,12 +8,13 @@ import { useEvent } from "@/utils/useEvent";
 import { getAuthCookie } from "@/app/lib/cookies";
 import { toast } from "sonner";
 import { EventList } from "@/types/event.model";
-import Navbar from "@/app/component/navbar/navbar.module";
+import Navbar from "@/app/component/navbar";
 import Footer from "@/app/component/molecules/footer.module";
 
 export default function PagePromotor() {
   const [showForm, setShowForm] = useState(false);
   const [eventList, setEventList] = useState<EventList[]>([]);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const { getEventsByPromotor, deleteEvent } = useEvent();
 
   const fetchEvents = async () => {
@@ -46,23 +47,27 @@ export default function PagePromotor() {
     const confirmed = confirm("Yakin ingin menghapus event ini?");
     if (!confirmed) return;
 
-    // Send delete request using axios
+    setDeletingId(eventId); // mulai loading
+
     try {
       const response = await api.delete(`/delete-events`, {
         headers: {
-          Authorization: `Bearer ${getAuthCookie().token}`, // Use token for authorization
+          Authorization: `Bearer ${getAuthCookie().token}`,
         },
+        data: { eventId },
       });
 
-      if (response.data.success) {
+      if (response.status === 200) {
         toast.success("Event berhasil dihapus.");
-        fetchEvents(); // Re-fetch events after delete
+        fetchEvents();
       } else {
         toast.error("Gagal menghapus event.");
       }
     } catch (error) {
       toast.error("Terjadi kesalahan saat menghapus event.");
       console.error(error);
+    } finally {
+      setDeletingId(null); // selesai loading
     }
   };
 
@@ -181,10 +186,17 @@ export default function PagePromotor() {
                         Ubah
                       </button>
                       <button
-                        className="text-red-600 hover:text-red-900"
+                        className={`text-red-600 hover:text-red-900 ${
+                          deletingId === event.eventId
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
                         onClick={() => handleDelete(event.eventId)}
+                        disabled={deletingId === event.eventId}
                       >
-                        Hapus
+                        {deletingId === event.eventId
+                          ? "Menghapus..."
+                          : "Hapus"}
                       </button>
                     </td>
                   </tr>

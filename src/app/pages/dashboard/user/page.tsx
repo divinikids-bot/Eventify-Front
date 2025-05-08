@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import Navbar from "@/app/component/navbar";
 
 export default function UserDashboard() {
   const { data: session } = useSession();
@@ -33,6 +34,7 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
+      {/* <Navbar/> */}
       {/* Sidebar Menu */}
       <aside className="w-72 bg-white p-6 border-r border-gray-200 hidden md:block shadow-lg">
         <div className="flex items-center gap-4 mb-8">
