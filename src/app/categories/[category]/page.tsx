@@ -1,10 +1,25 @@
 // app/categories/[category]/page.tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { dummyEvents } from '@/app/data/dummy-events';
 
 const VALID_CATEGORIES = ['music', 'sport', 'food', 'beauty'];
+
+interface Event {
+  eventId: number;
+  promotorId: number;
+  nameEvents: string;
+  categoryEvents: string;
+  imgUrl?: string;
+  locationEvents: string;
+  startDateEvents: string;
+  endDateEvents: string;
+  AvaibleSeats: number;
+}
 
 interface CategoryPageProps {
   params: {
@@ -14,12 +29,37 @@ interface CategoryPageProps {
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { category } = params;
-
-  // Optional: Make case-insensitive
   const normalizedCategory = category.toLowerCase();
-  if (!VALID_CATEGORIES.includes(normalizedCategory)) return notFound();
 
-  const events = dummyEvents.filter((event) => event.kategori === normalizedCategory);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Validate category
+    if (!VALID_CATEGORIES.includes(normalizedCategory)) {
+      notFound();
+      return;
+    }
+
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/events?category=${normalizedCategory}`
+        );
+        setEvents(res.data);
+      } catch (error) {
+        console.error('Failed to fetch events by category:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [normalizedCategory]);
+
+  if (!VALID_CATEGORIES.includes(normalizedCategory)) {
+    return notFound();
+  }
 
   return (
     <main className="p-6 bg-gray-50 min-h-screen">
@@ -27,7 +67,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         Kategori: {normalizedCategory}
       </h1>
 
-      {events.length === 0 ? (
+      {loading ? (
+        <p className="text-gray-500">Loading events...</p>
+      ) : events.length === 0 ? (
         <div className="flex items-center justify-center h-64">
           <p className="text-gray-500 text-lg">
             Belum ada event untuk kategori “{normalizedCategory}”.
@@ -37,51 +79,35 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event) => (
             <Link
-              key={event.id}
-              href={`/events/${event.id}`}
+              key={event.eventId}
+              href={`/events/${event.eventId}`}
               className="group block bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full border border-gray-200 hover:shadow-lg transition duration-300"
             >
-              {/* Gambar */}
+              {/* Gambar Event */}
               <div className="relative w-full h-[200px]">
                 <Image
-                  src={event.imageUrl || '/placeholder.svg'}
-                  alt={event.namaEvent}
+                  src={event.imgUrl || '/placeholder.svg'}
+                  alt={event.nameEvents}
                   fill
                   className="object-cover"
                 />
               </div>
 
-              {/* Detail Konten */}
+              {/* Detail Event */}
               <div className="p-3 flex flex-col justify-between flex-grow">
                 <div>
-                  {/* Nama Event */}
                   <h3 className="text-base text-gray-600 font-semibold truncate">
-                    {event.namaEvent}
+                    {event.nameEvents}
                   </h3>
-
-                  {/* Tanggal Event */}
-                  <p className="text-xs text-gray-500">{event.tanggalEvent}</p>
-
-                  {/* Harga Event */}
-                  {event.hargaEvent !== undefined && (
-                    <p className="text-sm text-gray-600 font-bold mt-2">
-                      Rp{event.hargaEvent.toLocaleString()}
-                    </p>
-                  )}
+                  <p className="text-xs text-gray-500">
+                    {new Date(event.startDateEvents).toLocaleDateString()} -{' '}
+                    {new Date(event.endDateEvents).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">{event.locationEvents}</p>
                 </div>
 
-                {/* Organizer */}
-                <div className="flex items-center mt-3 pt-2 border-t border-gray-200">
-                  <Image
-                    src={event.organizer?.image || '/placeholder.svg'}
-                    alt={event.eventOrganizer || 'Event Organizer'}
-                    width={26}
-                    height={26}
-                    className="rounded-full mr-2 object-cover"
-                  />
-                  <span className="text-xs text-gray-700 truncate">
-                    {event.eventOrganizer}
-                  </span>
+                <div className="mt-3 pt-2 text-xs text-gray-500 border-t">
+                  Seats Available: {event.AvaibleSeats}
                 </div>
               </div>
             </Link>
