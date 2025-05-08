@@ -50,13 +50,13 @@ export default function LoginPage() {
       if (result.success) {
         toast.success(result.message as string);
 
-        // setTimeout(() => {
-        //   if (authorize.role === "USER") {
-        //     window.location.replace("/pages/dashboard/user");
-        //   } else {
-        //     window.location.replace("/pages/dashboard/promotor");
-        //   }
-        // }, 500);
+        setTimeout(() => {
+          if (authorize.role === "USER") {
+            window.location.replace("/pages/dashboard/user");
+          } else {
+            window.location.replace("/pages/dashboard/promotor");
+          }
+        }, 500);
       } else {
         toast.error(
           typeof result.message === "string"

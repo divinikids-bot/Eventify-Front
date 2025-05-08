@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function UserDashboard() {
   const { data: session } = useSession();
@@ -15,7 +17,7 @@ export default function UserDashboard() {
     phone: session?.user?.phone || "",
     birthDate: session?.user?.birthDate || "",
     gender: session?.user?.gender || "",
-    avatar: session?.user?.image || "/default-avatar.png",
+    avatar: session?.user?.image || "/blankprofile.png",
   };
 
   const renderContent = () => {
@@ -33,14 +35,19 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
-      {/* Sidebar Menu */}
+      {/* Sidebar */}
       <aside className="w-72 bg-white p-6 border-r border-gray-200 hidden md:block shadow-lg">
         <div className="flex items-center gap-4 mb-8">
           <div className="relative">
-            <img
+            <Image
               src={user.avatar}
               alt="Profile"
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/default-avatar.png";
+              }}
             />
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
           </div>
@@ -51,9 +58,17 @@ export default function UserDashboard() {
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
         </div>
-        
+
         <h2 className="text-xl font-bold mb-6 text-gray-700">Dashboard</h2>
         <nav className="flex flex-col gap-2">
+          {/* Home Tab */}
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Link href="/" className={tabStyle(false)}>
+              <i className="fas fa-home mr-3"></i>
+              Beranda
+            </Link>
+          </motion.div>
+
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -86,6 +101,14 @@ export default function UserDashboard() {
 
       {/* Main Content */}
       <main className="flex-1 p-6">
+        {/* Mobile Header */}
+        <div className="md:hidden flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-gray-800">Dashboard</h2>
+          <Link href="/" className="text-blue-600 hover:text-blue-800 p-2 text-xl">
+            <i className="fas fa-home"></i>
+          </Link>
+        </div>
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -118,7 +141,6 @@ function subTabStyle(active: boolean) {
   }`;
 }
 
-// --- Tiket Section ---
 function TicketsSection() {
   const [ticketTab, setTicketTab] = useState<"active" | "past">("active");
 
@@ -172,7 +194,6 @@ function TicketsSection() {
   );
 }
 
-// --- Informasi Dasar Section ---
 function BasicInfo({ user }: { user: any }) {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -212,65 +233,13 @@ function BasicInfo({ user }: { user: any }) {
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InputField label="Nama Depan" value={user.firstName} editable={isEditing} />
+          <InputField label="Nama Belakang" value={user.lastName} editable={isEditing} />
+          <InputField label="Email" value={user.email} editable={false} />
+          <InputField label="No. Ponsel" value={user.phone} editable={isEditing} />
+          <InputField label="Tanggal Lahir" value={user.birthDate} type="date" editable={isEditing} />
           <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Nama Depan
-            </label>
-            <input
-              type="text"
-              defaultValue={user.firstName}
-              className="input-field"
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Nama Belakang
-            </label>
-            <input
-              type="text"
-              defaultValue={user.lastName}
-              className="input-field"
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              defaultValue={user.email}
-              className="input-field bg-gray-100"
-              disabled
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              No. Ponsel
-            </label>
-            <input
-              type="text"
-              defaultValue={user.phone}
-              className="input-field"
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Tanggal Lahir
-            </label>
-            <input
-              type="date"
-              defaultValue={user.birthDate}
-              className="input-field"
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Jenis Kelamin
-            </label>
+            <label className="block text-gray-700 text-sm font-medium mb-2">Jenis Kelamin</label>
             <div className="flex gap-4 mt-2">
               <label className="flex items-center">
                 <input
@@ -300,12 +269,34 @@ function BasicInfo({ user }: { user: any }) {
   );
 }
 
-// --- Pengaturan Section ---
+function InputField({
+  label,
+  value,
+  editable,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  editable: boolean;
+  type?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-gray-700 text-sm font-medium mb-2">{label}</label>
+      <input
+        type={type}
+        defaultValue={value}
+        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:text-gray-500"
+        disabled={!editable}
+      />
+    </div>
+  );
+}
+
 function Settings() {
   return (
     <div className="max-w-4xl mx-auto">
       <h3 className="text-3xl font-bold mb-6 text-gray-800">Pengaturan</h3>
-      
       <div className="bg-white rounded-xl shadow-md overflow-hidden p-8">
         <div className="flex flex-col items-center text-center py-12">
           <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4">
@@ -330,11 +321,3 @@ function Settings() {
     </div>
   );
 }
-
-// Custom input field style
-const inputField = `
-  w-full px-4 py-3 rounded-lg border border-gray-300 
-  focus:outline-none focus:ring-2 focus:ring-blue-500 
-  focus:border-transparent transition-all
-  disabled:bg-gray-100 disabled:text-gray-500
-`;

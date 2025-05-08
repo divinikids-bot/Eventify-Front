@@ -3,62 +3,68 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEvent } from "@/utils/useEvent";
-import { toast, Toaster } from "sonner";
 import { EventCreatePayload } from "@/types/event.model";
 import Navbar from "@/app/component/navbar/navbar.module";
 import Footer from "@/app/component/molecules/footer.module";
 
-const categories = ["MUSIC", "SPORTS", "FOOD", "BEAUTY"];
-const EVENTS_PER_PAGE = 6;
+// Enum for categories
+enum Category {
+  MUSIC = "MUSIC",
+  SPORTS = "SPORTS",
+  FOOD = "FOOD",
+  BEAUTY = "BEAUTY",
+}
 
 export default function EventsPage() {
-  const router = useRouter();
   const [events, setEvents] = useState<EventCreatePayload[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<EventCreatePayload[]>(
-    []
-  );
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [priceOrder, setPriceOrder] = useState<string>("");
-  const [selectedLocation, setSelectedLocation] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [filteredEvents, setFilteredEvents] = useState<EventCreatePayload[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [priceOrder, setPriceOrder] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { getAllEvent, deleteEvent, generateCoupon } = useEvent();
+  const EVENTS_PER_PAGE = 6;
+  const router = useRouter();
+  const { getAllEvent } = useEvent();
 
   useEffect(() => {
     async function fetchEvents() {
-      setIsLoading(true);
       const result = await getAllEvent();
       setEvents(result);
       setFilteredEvents(result);
-      setIsLoading(false);
     }
     fetchEvents();
   }, []);
 
-  useEffect(() => {
+  // Combine the enum categories with the event categories, but avoid duplicates
+  const eventCategories = events.length > 0
+    ? Array.from(new Set(events.map((e) => e.categoryEvents)))
+    : [];
+
+  const categories = [
+    Category.MUSIC,
+    Category.SPORTS,
+    Category.FOOD,
+    Category.BEAUTY,
+    ...eventCategories.filter((cat) => !Object.values(Category).includes(cat as Category)),
+  ];
+
+  const uniqueLocations =
+    events.length > 0
+      ? Array.from(new Set(events.map((e) => e.locationEvents))).sort()
+      : [];
+
+  const applyFilters = () => {
     let filtered = [...events];
 
-    if (selectedCategory) {
-      filtered = filtered.filter(
-        (event) => event.categoryEvents === selectedCategory
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter((event) =>
+        selectedCategories.includes(event.categoryEvents)
       );
     }
 
     if (selectedLocation) {
-      filtered = filtered.filter(
-        (event) => event.locationEvents === selectedLocation
-      );
-    }
-
-    if (searchTerm.trim() !== "") {
-      const lowerSearch = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (event) =>
-          event.nameEvents.toLowerCase().includes(lowerSearch) ||
-          event.descriptionEvents.toLowerCase().includes(lowerSearch)
-      );
+      filtered = filtered.filter((event) => event.locationEvents === selectedLocation);
     }
 
     if (priceOrder === "asc") {
@@ -69,171 +75,164 @@ export default function EventsPage() {
 
     setFilteredEvents(filtered);
     setCurrentPage(1);
-  }, [selectedCategory, selectedLocation, searchTerm, priceOrder, events]);
+  };
 
-  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
-  const validCurrentPage = Math.min(currentPage, totalPages || 1);
+  const resetFilters = () => {
+    setSelectedCategories([]);
+    setSelectedLocation("");
+    setPriceOrder("");
+    setFilteredEvents(events);
+    setCurrentPage(1);
+  };
 
   const paginatedEvents = filteredEvents.slice(
-    (validCurrentPage - 1) * EVENTS_PER_PAGE,
-    validCurrentPage * EVENTS_PER_PAGE
+    (currentPage - 1) * EVENTS_PER_PAGE,
+    currentPage * EVENTS_PER_PAGE
   );
 
-  const uniqueLocations = Array.from(
-    new Set(events.map((e) => e.locationEvents))
-  ).sort();
+  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 text-black pb-40">
+    <div className="min-h-screen flex flex-col bg-gray-100 text-black">
       <Navbar />
-      <div className="flex-grow max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-center">Browse Events</h1>
+      <main className="flex flex-grow px-6 py-10 gap-8 max-w-7xl mx-auto">
+        {/* Sidebar */}
+        <aside className="w-64 bg-[#172B4D] text-white rounded-lg p-5 space-y-6 h-fit">
+          <h2 className="text-xl font-bold">Filters</h2>
 
-        {/* Filter Bar */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <input
-            type="text"
-            placeholder="Search by name or description..."
-            className="w-full px-4 py-2 bg-gray-100 text-gray-500 placeholder-gray-400 border border-gray-600 rounded-md shadow-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-4 py-2 bg-blue-900 text-white border border-gray-600 rounded-md shadow-sm"
-          >
-            <option value="">All Categories</option>
+          {/* Categories */}
+          <div>
+            <h3 className="font-semibold mb-2">Categories</h3>
             {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={selectedLocation}
-            onChange={(e) => setSelectedLocation(e.target.value)}
-            className="w-full px-4 py-2 bg-blue-900 text-white border border-gray-600 rounded-md shadow-sm"
-          >
-            <option value="">All Locations</option>
-            {uniqueLocations.map((loc) => (
-              <option key={loc} value={loc}>
-                {loc}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={priceOrder}
-            onChange={(e) => setPriceOrder(e.target.value)}
-            className="w-full px-4 py-2 bg-blue-900 text-white border border-gray-600 rounded-md shadow-sm"
-          >
-            <option value="">Default Price</option>
-            <option value="asc">Termurah</option>
-            <option value="desc">Termahal</option>
-          </select>
-        </div>
-
-        {/* Loading */}
-        {isLoading && (
-          <div className="text-center text-lg font-semibold text-black">
-            Loading events...
-          </div>
-        )}
-
-        {/* No Result */}
-        {!isLoading && paginatedEvents.length === 0 && (
-          <div className="text-center text-gray-700 mt-10">
-            No events found.
-          </div>
-        )}
-
-        {/* Event Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {!isLoading &&
-            paginatedEvents.map((event) => (
-              <div
-                key={event.eventId}
-                className="bg-white text-black rounded-xl shadow-md p-5 border border-gray-200 flex flex-col justify-between h-[380px]"
-              >
-                <div>
-                  <h3 className="text-xl font-semibold mb-1">
-                    {event.nameEvents}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {event.startDateEvents}
-                  </p>
-                  <p className="mt-1">{event.locationEvents}</p>
-                  <div className="mt-2 text-sm text-gray-800 max-h-20 overflow-hidden">
-                    {event.descriptionEvents}
-                  </div>
-                  <p className="font-bold mt-2 text-green-700 text-lg">
-                    Rp{event.priceEvents.toLocaleString()}
-                  </p>
-                  <p className="text-xs italic text-gray-500">
-                    {event.categoryEvents}
-                  </p>
-                </div>
-
-                <div className="mt-4 flex gap-2">
-                  <button
-                    onClick={async () => {
-                      const res = await deleteEvent(Number(event.eventId));
-                      if (res.success) {
-                        toast.success("Event berhasil dihapus");
-                        setEvents((prev) =>
-                          prev.filter((e) => e.eventId !== event.eventId)
-                        );
-                      } else {
-                        toast.error("Gagal menghapus event");
-                      }
-                    }}
-                    className="flex-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-                  >
-                    Delete
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      const res = await generateCoupon(Number(event.eventId));
-                      if (res.success) {
-                        toast.success(
-                          `Kupon berhasil dibuat: ${res.data?.code}`
-                        );
-                      } else {
-                        toast.error("Gagal membuat kupon");
-                      }
-                    }}
-                    className="flex-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
-                  >
-                    Generate Coupon
-                  </button>
-                </div>
+              <div key={cat} className="flex items-center mb-1">
+                <input
+                  type="checkbox"
+                  id={cat}
+                  checked={selectedCategories.includes(cat)}
+                  onChange={() => {
+                    setSelectedCategories((prev) =>
+                      prev.includes(cat)
+                        ? prev.filter((c) => c !== cat)
+                        : [...prev, cat]
+                    );
+                  }}
+                  className="mr-2"
+                />
+                <label htmlFor={cat}>{cat}</label>
               </div>
             ))}
-        </div>
-
-        {/* Pagination */}
-        {!isLoading && totalPages > 1 && (
-          <div className="mt-10 flex justify-center items-center gap-2">
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded-md text-sm font-medium ${
-                  validCurrentPage === i + 1
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-black"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
           </div>
-        )}
-      </div>
+
+          {/* Location */}
+          <div>
+            <h3 className="font-semibold mb-2">Location</h3>
+            <select
+              className="bg-white w-full p-2 text-black rounded"
+              value={selectedLocation}
+              onChange={(e) => setSelectedLocation(e.target.value)}
+            >
+              <option value="">All Locations</option>
+              {uniqueLocations.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Price */}
+          <div>
+            <h3 className="font-semibold mb-2">Price</h3>
+            <select
+              className="bg-white w-full p-2 text-black rounded"
+              value={priceOrder}
+              onChange={(e) => setPriceOrder(e.target.value)}
+            >
+              <option value="">Default</option>
+              <option value="asc">Lowest to Highest</option>
+              <option value="desc">Highest to Lowest</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <button
+              onClick={applyFilters}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold w-full py-2 rounded"
+            >
+              Apply Filters
+            </button>
+            <button
+              onClick={resetFilters}
+              className="border border-white text-white w-full py-2 rounded hover:bg-white hover:text-black"
+            >
+              Reset Filters
+            </button>
+          </div>
+        </aside>
+
+        {/* Event List */}
+        <section className="flex-1">
+          <h1 className="text-3xl font-bold mb-2">Discover Events</h1>
+          <p className="mb-6 text-gray-600">Find and join exciting events happening around you</p>
+
+          {filteredEvents.length === 0 ? (
+            <p>No events found.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedEvents.map((event) => (
+                <div
+                  key={event.eventId}
+                  className="bg-white rounded-lg shadow-md p-4 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="h-32 bg-gray-200 mb-3 rounded" />
+                    <p className="text-sm text-gray-500">
+                      📅 {event.startDateEvents} | 📍 {event.locationEvents}
+                    </p>
+                    <span className="inline-block bg-yellow-300 text-xs font-semibold text-black px-2 py-1 mt-2 rounded">
+                      {event.categoryEvents}
+                    </span>
+                    <h3 className="mt-2 font-bold text-lg">{event.nameEvents}</h3>
+                    <p className="text-sm text-gray-700 line-clamp-2">{event.descriptionEvents}</p>
+                  </div>
+                  <div className="mt-3 flex justify-between items-center">
+                    <p className="font-bold text-md">Rp{Number(event.priceEvents).toLocaleString()}</p>
+                    <button
+                      className="bg-yellow-400 hover:bg-yellow-500 text-sm px-3 py-1 rounded font-semibold"
+                      onClick={() => router.push(`/pages/event/${event.eventId}`)}
+                    >
+                      Get Ticket
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-10 flex justify-center items-center gap-2 text-sm">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <span>
+                Page {currentPage} / {totalPages}
+              </span>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </section>
+      </main>
       <Footer />
     </div>
   );
