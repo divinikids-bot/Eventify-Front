@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import Head from 'next/head';
-import Navbar from '@/app/component/navbar/navbar.module';
-import Footer from '@/app/component/molecules/footer.module';
+import { useState } from "react";
+import Head from "next/head";
+import Navbar from "@/app/component/navbar";
+import Footer from "@/app/component/molecules/footer.module";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({

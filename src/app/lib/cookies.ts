@@ -23,6 +23,5 @@ export function getAuthCookie() {
 }
 
 export const removeAuthCookie = () => {
-  // Menghapus token dari cookies
-  Cookies.remove("auth_token");
+  Cookies.remove("token");
 };

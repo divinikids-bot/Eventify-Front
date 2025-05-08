@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Navbar from "@/app/component/navbar/navbar.module";
+import Navbar from "@/app/component/navbar";
 
 import Footer from "@/app/component/molecules/footer.module";
 

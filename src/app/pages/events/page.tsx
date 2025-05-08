@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEvent } from "@/utils/useEvent";
 import { EventCreatePayload } from "@/types/event.model";
-import Navbar from "@/app/component/navbar/navbar.module";
+import Navbar from "@/app/component/navbar";
 import Footer from "@/app/component/molecules/footer.module";
 
 // Enum for categories

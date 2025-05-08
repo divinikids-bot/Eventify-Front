@@ -52,7 +52,8 @@ export default function LoginPage() {
 
         setTimeout(() => {
           if (authorize.role === "USER") {
-            window.location.replace("/pages/dashboard/user");
+            window.location.replace("/");
+            // window.location.replace("/pages/dashboard/user");
           } else {
             window.location.replace("/pages/dashboard/promotor");
           }
