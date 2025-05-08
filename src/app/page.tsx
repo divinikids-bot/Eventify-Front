@@ -3,9 +3,9 @@
 // import Navbar from './components/atomics/navbar.module';
 import Footer from "./component/molecules/footer.module";
 import HeroCarousel from "@/app/component/molecules/hero";
-import EventPilihan from "./pages/featured-event";
+import EventPilihan from "./component/featured-event";
 import CategoriesBadge from "@/app/component/molecules/badge-categories";
-import PopularEvents from "./pages/popular-events"; // jangan lupa import PopularEvents!
+import PopularEvents from "./component/popular-events"; // jangan lupa import PopularEvents!
 import Navbar from "./component/navbar";
 
 export default function Home() {

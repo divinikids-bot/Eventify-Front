@@ -192,7 +192,7 @@ export default function EventsPage() {
           <p className="mb-6 text-gray-600">Find and join exciting events happening around you</p>
 
           {filteredEvents.length === 0 ? (
-            <p>No events found.</p>
+            <p>Loading...</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedEvents.map((event) => (
@@ -215,7 +215,7 @@ export default function EventsPage() {
                     <p className="font-bold text-md">Rp{Number(event.priceEvents).toLocaleString()}</p>
                     <button
                       className="bg-yellow-400 hover:bg-yellow-500 text-sm px-3 py-1 rounded font-semibold"
-                      onClick={() => router.push(`/pages/events/${event.eventId}`)}
+                      onClick={() => router.push(`/events/${event?.eventId}`)}
                     >
                       Get Ticket
                     </button>

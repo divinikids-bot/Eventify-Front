@@ -36,3 +36,22 @@ export interface EventList {
 export interface EventUpdatePayload extends Partial<EventCreatePayload> {
   eventId: number;
 }
+
+export type EventData = {
+  id: string;
+  namaEvent: string;
+  lokasiEvent: string;
+  tanggalEvent: string;
+  imageUrl?: string;
+};
+
+export type TicketOption = {
+  id: string;
+  title: string;
+  price: number;
+  quota?: number;
+  eventId: string;
+  saleStartDate?: string;
+  saleEndDate?: string;
+  discountPercentage?: number;
+};

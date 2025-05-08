@@ -2,28 +2,37 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { dummyTickets, TicketOption } from '@/app/data/dummy-ticket';
-import { dummyEvents, EventData } from '@/app/data/dummy-events';
+import axios from 'axios';
+import { EventData, TicketOption } from '@/types/event.model';
 import { Calendar, MapPin } from 'lucide-react';
 
 export default function TicketPage({ params }: { params: { eventId: string } }) {
-  const eventId = params.eventId;
   const router = useRouter();
+  const eventId = params.eventId;
+
+  const [event, setEvent] = useState<EventData | null>(null);
   const [tickets, setTickets] = useState<TicketOption[]>([]);
   const [cart, setCart] = useState<{ [ticketId: string]: number }>({});
   const [loading, setLoading] = useState(true);
-  const [event, setEvent] = useState<EventData | null>(null);
 
   useEffect(() => {
-    if (eventId) {
-      const filtered = dummyTickets.filter(ticket => ticket.eventId === eventId);
-      setTickets(filtered);
+    const fetchData = async () => {
+      try {
+        const [eventRes, ticketsRes] = await Promise.all([
+          axios.get(`/api/events/${eventId}`),
+          axios.get(`/api/tickets`, { params: { eventId } })
+        ]);
 
-      const foundEvent = dummyEvents.find(e => e.id === eventId);
-      setEvent(foundEvent || null);
+        setEvent(eventRes.data);
+        setTickets(ticketsRes.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setLoading(false);
-    }
+    if (eventId) fetchData();
   }, [eventId]);
 
   const getDiscountedPrice = (ticket: TicketOption) => {
@@ -46,14 +55,15 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
   };
 
   const handleCheckout = () => {
+    window.scrollTo({ top: 0 });
     router.push(`/checkout?eventId=${eventId}&cart=${encodeURIComponent(JSON.stringify(cart))}`);
   };
 
   if (loading) return <p className="p-6 text-gray-600">Loading...</p>;
+  if (!event) return <p className="p-6 text-gray-600">Event tidak ditemukan.</p>;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* HEADER */}
       <div className="bg-gradient-to-br from-[#172B4D] to-[#172B4D] text-white py-8 px-6">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold">Beli Tiket</h1>
@@ -62,31 +72,30 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* EVENT INFO */}
-        {event && (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
-            <img
-              src={event.imageUrl || '/placeholder.svg'}
-              alt={event.namaEvent}
-              className="w-[970px] h-[250px] rounded-lg object-cover"
-            />
-            <div>
-              <h2 className="text-xl font-bold text-black">{event.namaEvent}</h2>
-              <div className="flex items-center text-sm text-gray-600 gap-2 mt-1">
-                <MapPin size={14} /> {event.lokasiEvent}
-              </div>
-              <div className="flex items-center text-sm text-gray-600 gap-2">
-                <Calendar size={14} /> {event.tanggalEvent}
-              </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+          <img
+            src={event.imageUrl || '/placeholder.svg'}
+            alt={event.namaEvent}
+            className="w-full max-w-[970px] h-[250px] rounded-lg object-cover"
+          />
+          <div>
+            <h2 className="text-xl font-bold text-black">{event.namaEvent}</h2>
+            <div className="flex items-center text-sm text-gray-600 gap-2 mt-1">
+              <MapPin size={14} /> {event.lokasiEvent}
+            </div>
+            <div className="flex items-center text-sm text-gray-600 gap-2">
+              <Calendar size={14} /> {event.tanggalEvent}
             </div>
           </div>
-        )}
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* LEFT: Ticket Options */}
+          {/* LEFT: Tickets */}
           <div className="flex-1 space-y-6">
             {tickets.map(ticket => {
               const discountedPrice = getDiscountedPrice(ticket);
+              const formattedPrice = ticket.price.toLocaleString('id-ID');
+              const formattedDiscounted = discountedPrice.toLocaleString('id-ID');
               const now = new Date();
               const isNotStarted = ticket.saleStartDate && new Date(ticket.saleStartDate) > now;
 
@@ -98,30 +107,33 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                     <div>
                       <h2 className="text-lg font-semibold">{ticket.title}</h2>
-                      <p className="text-sm text-gray-600 mt-0.5">
-                        Rp {ticket.price.toLocaleString('id-ID')} belum termasuk PPN
-                      </p>
 
-                      {ticket.discountPercentage && ticket.discountPercentage > 0 && (
-                        <div className="mt-1 text-sm text-gray-500">
-                          <span className="line-through mr-2">
-                            Rp {ticket.price.toLocaleString('id-ID')}
-                          </span>
-                          <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">
-                            -{ticket.discountPercentage}%
-                          </span>
-                        </div>
+                      {!ticket.discountPercentage ? (
+                        <p className="text-sm text-gray-600 mt-0.5">
+                          Rp {formattedPrice} belum termasuk PPN
+                        </p>
+                      ) : (
+                        <>
+                          <div className="mt-1 text-sm text-gray-500">
+                            <span className="line-through mr-2">Rp {formattedPrice}</span>
+                            <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">
+                              -{ticket.discountPercentage}%
+                            </span>
+                          </div>
+                        </>
                       )}
 
                       <div className="mt-2 font-bold text-blue-600 text-lg">
-                        Rp {discountedPrice.toLocaleString('id-ID')}
+                        Rp {formattedDiscounted}
                       </div>
 
-                      <div className="text-xs text-gray-500 mt-1">
-                        {isNotStarted
-                          ? `Penjualan dimulai: ${new Date(ticket.saleStartDate!).toLocaleString('id-ID')}`
-                          : `Penjualan berakhir: ${new Date(ticket.saleEndDate!).toLocaleString('id-ID')}`}
-                      </div>
+                      {ticket.saleStartDate && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          {isNotStarted
+                            ? `Penjualan dimulai: ${new Date(ticket.saleStartDate).toLocaleString('id-ID')}`
+                            : `Penjualan berakhir: ${new Date(ticket.saleEndDate!).toLocaleString('id-ID')}`}
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -149,7 +161,7 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
             })}
           </div>
 
-          {/* RIGHT: Order Summary */}
+          {/* RIGHT: Summary */}
           <div className="w-full lg:w-[320px] space-y-4 h-fit">
             <div className="p-5 border rounded-xl bg-white shadow text-black">
               <h3 className="text-lg font-semibold mb-3">Ringkasan</h3>
@@ -157,7 +169,6 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
               {Object.entries(cart).map(([ticketId, qty]) => {
                 const ticket = tickets.find(t => t.id === ticketId);
                 if (!ticket || qty === 0) return null;
-
                 const price = getDiscountedPrice(ticket);
 
                 return (
@@ -194,4 +205,4 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
       </div>
     </div>
   );
-}
+} 
