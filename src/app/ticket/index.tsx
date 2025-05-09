@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Ticket } from '@/types/ticket';
 import { getUserTickets } from '@/app/services/ticketservice';
+import Navbar from '../component/navbar';
 
 export default function TicketsPage() {
   const [activeTab, setActiveTab] = useState<'active' | 'past'>('active');
@@ -16,7 +17,8 @@ export default function TicketsPage() {
   const filteredTickets = tickets.filter(t => t.status === activeTab);
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen flex flex-col pt-20">
+      <Navbar/>
       <h1 className="text-xl font-semibold mb-4">Tiket Saya</h1>
 
       <div className="flex space-x-4 border-b mb-6">

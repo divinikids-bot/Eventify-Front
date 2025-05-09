@@ -107,7 +107,7 @@ export default function PagePromotor() {
   );
 
   return (
-    <div className="bg-gray-100 text-gray-700 pb-20 pt-20">
+    <div className="bg-gray-100 text-gray-700 min-h-screen flex flex-col pt-20">
       <Navbar />
       <div className=" min-h-screen p-6 space-y-6">
         <div className="flex justify-between items-center">

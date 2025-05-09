@@ -32,7 +32,7 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen flex flex-col pt-20 bg-gray-100">
       <div className="max-w-3xl mx-auto bg-white p-8 shadow rounded-lg">
         <h1 className="text-3xl font-bold mb-6 text-black">Create New Event</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -102,7 +102,10 @@ export default function CreateEventPage() {
             >
               Cancel
             </Button>
-            <Button type="submit" className="bg-primary text-white hover:bg-primary/90">
+            <Button
+              type="submit"
+              className="bg-primary text-white hover:bg-primary/90"
+            >
               Create Event
             </Button>
           </div>
