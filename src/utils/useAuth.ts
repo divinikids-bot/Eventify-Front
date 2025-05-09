@@ -36,9 +36,7 @@ export function useAuth() {
     if (errorMessage) {
       return { message: errorMessage, success: false };
     }
-
-    //>>>>>>>>>>>>>>>>>>>>>>>>> ada error disini saat signUp <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    console.log("========Data Cek=========", data);
+    // console.log("========Data Cek=========", data);
     try {
       const response = await api.post("/users", 
          {
@@ -51,8 +49,7 @@ export function useAuth() {
         }
     );
       // const { access_token, role, id } = response.data.data;
-      console.log("=====respon data=====", response.data);
-
+      // console.log("=====respon data=====", response.data);
       return {
         message: "Register berhasil",
         success: true,
@@ -74,8 +71,7 @@ export function useAuth() {
     try {
       const response = await api.post("/auth/login", { email, password });
       const { access_token, role, id } = response.data.data;
-      console.log("=====respon data=====", response.data);
-
+      // console.log("=====respon data=====", response.data);
       setAuthCookie({
         token: access_token,
         role: role,
@@ -98,7 +94,6 @@ export function useAuth() {
       };
     }
   }
-
   return {
     signUp,
     login,

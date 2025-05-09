@@ -1,45 +1,56 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/app/lib/axios";
 import { FaCalendarAlt, FaTicketAlt, FaMoneyBillWave } from "react-icons/fa";
-import CreateEvent from "@/app/component/molecules/createEvent.form";
 import { useEvent } from "@/utils/useEvent";
 import { getAuthCookie } from "@/app/lib/cookies";
 import { toast } from "sonner";
 import { EventList } from "@/types/event.model";
+import CreateEventForm from "@/app/component/molecules/createEvent.form";
 import Navbar from "@/app/component/navbar";
 import Footer from "@/app/component/molecules/footer.module";
 
 export default function PagePromotor() {
+  const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [eventList, setEventList] = useState<EventList[]>([]);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const { getEventsByPromotor, deleteEvent } = useEvent();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchEvents = async () => {
-    const { token, role } = getAuthCookie();
+    setLoading(true);
+    setError(null);
+    // const { token, role } = getAuthCookie();
 
-    if (!token || role !== "PROMOTOR") {
-      toast.error("Gagal mengambil data promotor. Silakan login ulang.");
-      return;
-    }
+    // if (!token || role !== "PROMOTOR") {
+    //   toast.error("Gagal mengambil data promotor. Silakan login ulang.");
+    //   return;
+    // }
 
     try {
+      const { token, role } = getAuthCookie();
+      if (!token || role !== "PROMOTOR") {
+        throw new Error("Unauthorized");
+      }
+
       const response = await api.get("/promotor/events", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.status === 200) {
         setEventList(response.data.data);
       } else {
-        toast.error("Gagal memuat data event.");
+        throw new Error("Failed to fetch events");
       }
-    } catch (error) {
-      toast.error("Terjadi kesalahan saat memuat data event.");
-      console.error(error);
+    } catch (err) {
+      // setError(err.message);
+      toast.error("Gagal memuat data event.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,7 +118,7 @@ export default function PagePromotor() {
             className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
             onClick={() => setShowForm(true)}
           >
-            Buat Event
+            + Create Event
           </button>
         </div>
 
@@ -117,93 +128,95 @@ export default function PagePromotor() {
             value={eventList.length}
             icon={FaCalendarAlt}
           />
-          <StatCard title="Tiket Terjual" value="1.200" icon={FaTicketAlt} />
+          <StatCard title="Tiket Terjual" value="" icon={FaTicketAlt} />
           <StatCard
             title="Total Pendapatan"
-            value="Rp 25.000.000"
+            value="Rp "
             icon={FaMoneyBillWave}
           />
         </div>
 
         {showForm && (
-          <CreateEvent
-            onCancel={() => setShowForm(false)}
+          <CreateEventForm
+            onCancel={() => {
+              console.log('Closing form');
+              setShowForm(false);
+            }}
             onCreated={() => {
-              fetchEvents();
-              toast.success("Event berhasil dibuat!");
-              setShowForm(true);
+              fetchEvents(); // Hanya refresh data
             }}
           />
         )}
 
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">Daftar Event</h2>
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-              onClick={() => setShowForm(true)}
-            >
-              Buat Event Baru
-            </button>
+            {loading && (
+              <span className="text-sm text-gray-500">Loading...</span>
+            )}
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nama Event
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tanggal
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tiket Terjual
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {eventList?.map((event) => (
-                  <tr key={event.eventId} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">{event.nameEvents}</td>
-                    <td className="px-6 py-4">
-                      {new Date(event.startDateEvents).toLocaleDateString()} -{" "}
-                      {new Date(event.endDateEvents).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">{event.ticketsSold || 0}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {event.status || "Aktif"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">
-                      <button className="text-blue-600 hover:text-blue-900 mr-4">
-                        Ubah
-                      </button>
-                      <button
-                        className={`text-red-600 hover:text-red-900 ${
-                          deletingId === event.eventId
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
-                        onClick={() => handleDelete(event.eventId)}
-                        disabled={deletingId === event.eventId}
-                      >
-                        {deletingId === event.eventId
-                          ? "Menghapus..."
-                          : "Hapus"}
-                      </button>
-                    </td>
+
+          {error ? (
+            <div className="text-red-500 p-4">{error}</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Nama Event
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tanggal
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tiket Terjual
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Aksi
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {eventList?.map((event) => (
+                    <tr key={event.eventId} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">{event.nameEvents}</td>
+                      <td className="px-6 py-4">
+                        {new Date(event.startDateEvents).toLocaleDateString()} -{" "}
+                        {new Date(event.endDateEvents).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">{event.ticketsSold || 0}</td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          {event.status || "Aktif"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-900 mr-4">
+                          Ubah
+                        </button>
+                        <button
+                          className={`text-red-600 hover:text-red-900 ${
+                            deletingId === event.eventId
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                          onClick={() => handleDelete(event.eventId)}
+                          disabled={deletingId === event.eventId}
+                        >
+                          {deletingId === event.eventId
+                            ? "Menghapus..."
+                            : "Hapus"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
