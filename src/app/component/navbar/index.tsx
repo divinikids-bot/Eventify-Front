@@ -19,7 +19,6 @@ export default function Navbar() {
 
   // Ambil data user saat mounting jika token tersedia
   useEffect(() => {
-    
     const token = getAuthCookie().token;
     if (token) {
       const fetchProfile = async () => {
@@ -47,7 +46,7 @@ export default function Navbar() {
   const handleLogout = () => {
     removeAuthCookie(); // Hapus cookie auth
     setUserProfile(null); // Reset state user
-    router.push('/');
+    router.push("/");
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -57,7 +56,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-[#172B4D] px-4 py-3 z-50">
+    <nav className="fixed top-0 w-full left-0 shadow-md bg-[#172B4D] px-4 py-3 z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
           <Image
