@@ -11,8 +11,8 @@ import { useRouter } from "next/navigation";
 export interface CreateEventFormProps {
   onCancel: () => void;
   onCreated?: () => void;
-  initialData?: any | null; // Replace 'any' with the correct type if available
-  eventData?: EventCreatePayload & { id: string };
+  initialData?: any | null; // Replace 'any' with the correct type if known
+  eventData?: EventCreatePayload & { id: string }; // tambahkan id untuk update
 }
 
 // === Main Component ===
@@ -162,7 +162,7 @@ export default function CreateEventForm({
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-2xl font-semibold text-center mb-4">
-            Create Event
+            {eventData ? "Edit Event" : "Create Event"}
           </h2>
 
           <Input
@@ -225,8 +225,6 @@ export default function CreateEventForm({
               e.target.files && setImageFile(e.target.files[0])
             }
           />
-
-          {/* Optional Coupons */}
           <Input
             label="Coupon Code (opsional)"
             value={couponCode}
@@ -242,7 +240,6 @@ export default function CreateEventForm({
               setCouponDiscount(Number(e.target.value))
             }
           />
-
           <div className="flex gap-4 justify-center">
             <button
               type="submit"

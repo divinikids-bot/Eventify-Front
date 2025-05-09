@@ -25,12 +25,6 @@ export default function PagePromotor() {
   const fetchEvents = async () => {
     setLoading(true);
     setError(null);
-    // const { token, role } = getAuthCookie();
-
-    // if (!token || role !== "PROMOTOR") {
-    //   toast.error("Gagal mengambil data promotor. Silakan login ulang.");
-    //   return;
-    // }
 
     try {
       const { token, role } = getAuthCookie();
@@ -198,14 +192,14 @@ export default function PagePromotor() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
-                        <button
+                         <button
                           className="text-blue-600 hover:text-blue-900 mr-4"
                           onClick={() => {
-                            setEditingEvent(event); // kirim data event ke form
+                            setEditingEvent(event); // set event yang ingin diubah
                             setShowForm(true);
                           }}
                         >
-                          Ubah
+                          Edit
                         </button>
                         <button
                           className={`text-red-600 hover:text-red-900 ${
