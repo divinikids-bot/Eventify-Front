@@ -51,7 +51,7 @@ export default function EventPilihan() {
         {events.map((events) => (
           <SwiperSlide key={events.eventId} className="h-auto">
             <Link
-              href={`/pages/events/${events.eventId}`}
+              href={`/events/${events.eventId}`}
               className="block h-full px-2"
             >
               <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-300 hover:shadow-xl transition duration-300">

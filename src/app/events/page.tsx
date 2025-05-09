@@ -203,7 +203,7 @@ export default function EventsPage() {
                   <div>
                     <div className="h-32 bg-gray-200 mb-3 rounded" />
                     <p className="text-sm text-gray-500">
-                      📅 {event.startDateEvents} | 📍 {event.locationEvents}
+                      {event.startDateEvents} | {event.locationEvents}
                     </p>
                     <span className="inline-block bg-yellow-300 text-xs font-semibold text-black px-2 py-1 mt-2 rounded">
                       {event.categoryEvents}

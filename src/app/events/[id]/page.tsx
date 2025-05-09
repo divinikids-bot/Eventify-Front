@@ -3,6 +3,7 @@ import Navbar from "@/app/component/navbar";
 import Footer from "@/app/component/molecules/footer.module";
 import { api } from "@/app/lib/axios"; 
 import { EventCreatePayload } from "@/types/event.model";
+import { useEvent } from "@/utils/useEvent";
 
 interface EventDetailPageProps {
   params: { id: string };
@@ -10,6 +11,8 @@ interface EventDetailPageProps {
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const eventId = parseInt(params.id);
+  const { getAllEvent } = useEvent();
+
   console.log("====Params ID====", params.id);
 
 
