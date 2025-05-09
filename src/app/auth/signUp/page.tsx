@@ -60,7 +60,13 @@ export default function SignUpPage() {
 
       if (result.success) {
         toast.success(result.message as string); // Notifikasi sukses
-        router.push("/pages/dashboard/user"); // Redirect ke dashboard setelah berhasil
+
+        const role = result.data?.role || formData.role || "USER"; // fallback pakai formData
+        if (role === "PROMOTOR") {
+          router.push("/dashboard/promotor");
+        } else {
+          router.push("/dashboard/user");
+        }
       } else {
         const errorMessage =
           typeof result.message === "string"

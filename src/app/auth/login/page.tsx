@@ -55,7 +55,7 @@ export default function LoginPage() {
             window.location.replace("/");
             // window.location.replace("/pages/dashboard/user");
           } else {
-            window.location.replace("/pages/dashboard/promotor");
+            window.location.replace("/dashboard/promotor");
           }
         }, 500);
       } else {

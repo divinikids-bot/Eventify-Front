@@ -3,14 +3,12 @@ import { setAuthCookie } from "@/app/lib/cookies";
 
 export function useAuth() {
   interface SignUpPayload {
-
-      name: string;
-      email: string;
-      password: string;
-      role: "USER" | "PROMOTOR";
-      referralCode?: string;
-      referredBy?: string;
-    
+    name: string;
+    email: string;
+    password: string;
+    role: "USER" | "PROMOTOR";
+    referralCode?: string;
+    referredBy?: string;
   }
 
   function validateSignUp(data: SignUpPayload) {
@@ -36,23 +34,28 @@ export function useAuth() {
     if (errorMessage) {
       return { message: errorMessage, success: false };
     }
-    // console.log("========Data Cek=========", data);
+
     try {
-      const response = await api.post("/users", 
-         {
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          role:data.role,
-          referralCode: data.referralCode,
-          referredBy: data.referredBy
-        }
-    );
-      // const { access_token, role, id } = response.data.data;
-      // console.log("=====respon data=====", response.data);
+      const response = await api.post("/users", {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+        referralCode: data.referralCode,
+        referredBy: data.referredBy,
+      });
+
+      const user = response.data.data; // Ambil data user dari response backend
+
       return {
         message: "Register berhasil",
         success: true,
+        data: {
+          id: user.id,
+          role: user.role,
+          name: user.name,
+          email: user.email,
+        },
       };
     } catch (error: any) {
       console.error("Sign Up Error: ", error);

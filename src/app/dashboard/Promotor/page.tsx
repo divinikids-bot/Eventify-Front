@@ -107,9 +107,9 @@ export default function PagePromotor() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-700 pb-20 pt-20">
+    <div className="bg-gray-100 text-gray-700 pb-20 pt-20">
       <Navbar />
-      <div className="p-6 space-y-6">
+      <div className=" min-h-screen p-6 space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">
             Dashboard Promotor
@@ -139,7 +139,7 @@ export default function PagePromotor() {
         {showForm && (
           <CreateEventForm
             onCancel={() => {
-              console.log('Closing form');
+              console.log("Closing form");
               setShowForm(false);
             }}
             onCreated={() => {
