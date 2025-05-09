@@ -4,6 +4,16 @@ import { EventCreatePayload } from "@/types/event.model";
 import { EventUpdatePayload } from "@/types/event.model";
 
 export function useEvent() {
+
+  async function getEventDetail(eventId: number){
+    try {
+      const response = await api.get(`/events/${eventId}`)
+      return response.data.data
+    } catch (error) {
+      console.error('Failed get event detail : ', error)
+    }
+  }
+
   async function getAllEvent() {
     try {
       const res = await api.get("/events");
@@ -116,5 +126,6 @@ export function useEvent() {
     updateEvent,
     deleteEvent,
     generateCoupon,
+    getEventDetail
   };
 }

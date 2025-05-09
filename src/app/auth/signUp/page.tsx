@@ -6,8 +6,13 @@ import { toast, Toaster } from "sonner";
 import { useAuth } from "@/utils/useAuth";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import Cookies from "js-cookie"; // ✅ untuk menyimpan token
 
-export default function SignUpPage() {
+interface SignUpPageProps {
+  setUserProfile: (user: any) => void; // ✅ diterima dari parent
+}
+
+export default function SignUpPage({ setUserProfile }: SignUpPageProps) {
   const { signUp } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
@@ -60,12 +65,13 @@ export default function SignUpPage() {
 
       if (result.success) {
         toast.success(result.message as string); // Notifikasi sukses
+        
 
         const role = result.data?.role || formData.role || "USER"; // fallback pakai formData
         if (role === "PROMOTOR") {
           router.push("/dashboard/promotor");
         } else {
-          router.push("/dashboard/user");
+          router.push("/");
         }
       } else {
         const errorMessage =
