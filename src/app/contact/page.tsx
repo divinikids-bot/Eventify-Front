@@ -36,7 +36,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col pt-20 bg-gray-50">
       {/* Navbar is fixed at the top */}
       <Navbar />
       <Head>

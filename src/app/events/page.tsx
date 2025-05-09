@@ -109,7 +109,7 @@ export default function EventsPage() {
   const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 text-black">
+    <div className="min-h-screen flex flex-col pt-20 bg-gray-100 text-black">
       <Navbar />
       <main className="flex flex-grow px-6 py-10 gap-8 max-w-7xl mx-auto">
         {/* Sidebar */}

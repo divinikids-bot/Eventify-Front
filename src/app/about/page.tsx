@@ -55,7 +55,7 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="min-h-screen flex flex-col pt-20 bg-white">
       <Navbar /> {/* Tambah bg-white di sini */}
       <main className="flex-1 flex flex-col space-y-16">
         {/* Hero Section */}

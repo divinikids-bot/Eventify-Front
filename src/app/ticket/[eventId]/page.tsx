@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { EventData, TicketOption } from '@/types/event.model';
 import { Calendar, MapPin } from 'lucide-react';
+import Navbar from '@/app/component/navbar';
 
 export default function TicketPage({ params }: { params: { eventId: string } }) {
   const router = useRouter();
@@ -63,7 +64,8 @@ export default function TicketPage({ params }: { params: { eventId: string } }) 
   if (!event) return <p className="p-6 text-gray-600">Event tidak ditemukan.</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col pt-20 bg-gray-50">
+      <Navbar/>
       <div className="bg-gradient-to-br from-[#172B4D] to-[#172B4D] text-white py-8 px-6">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold">Beli Tiket</h1>

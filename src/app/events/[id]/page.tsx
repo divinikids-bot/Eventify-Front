@@ -61,7 +61,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     });
 
     return (
-      <div className="min-h-screen bg-white text-gray-800">
+      <div className="min-h-screen flex flex-col pt-20 bg-white text-gray-800">
         <Navbar />
         <div className="container mx-auto py-6 px-4">
           {event.imageUrl && (
