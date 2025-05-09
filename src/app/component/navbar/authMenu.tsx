@@ -43,13 +43,13 @@ export default function AuthMenu({
       {dropdownOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
           <Link
-            href="/profile"
+            href="/pages/dashboard/user"
             className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
           >
             Profile
           </Link>
           <Link
-            href="/settings"
+            href="/setting"
             className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
           >
             Settings

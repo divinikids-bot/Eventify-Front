@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/app/component/navbar";
+import { useRouter } from "next/navigation";
 
 export default function UserDashboard() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("tickets");
+  const router = useRouter();
 
   const user = {
     firstName: session?.user?.firstName || "",
@@ -16,7 +17,7 @@ export default function UserDashboard() {
     phone: session?.user?.phone || "",
     birthDate: session?.user?.birthDate || "",
     gender: session?.user?.gender || "",
-    avatar: session?.user?.image || "/default-avatar.png",
+    avatar: session?.user?.image || "/profileblank.svg",
   };
 
   const renderContent = () => {
@@ -34,13 +35,12 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
-      {/* <Navbar/> */}
       {/* Sidebar Menu */}
       <aside className="w-72 bg-white p-6 border-r border-gray-200 hidden md:block shadow-lg">
         <div className="flex items-center gap-4 mb-8">
           <div className="relative">
             <img
-              src={user.avatar}
+              src={user.avatar} 
               alt="Profile"
               className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
             />
@@ -56,6 +56,15 @@ export default function UserDashboard() {
         
         <h2 className="text-xl font-bold mb-6 text-gray-700">Dashboard</h2>
         <nav className="flex flex-col gap-2">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push('/')}
+            className={tabStyle(activeTab === "home")}
+          >
+            <i className="fas fa-home mr-3"></i>
+            Home
+          </motion.button>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -112,15 +121,6 @@ function tabStyle(active: boolean) {
   }`;
 }
 
-function subTabStyle(active: boolean) {
-  return `px-4 py-2 rounded-full text-sm font-medium transition-all ${
-    active
-      ? "bg-blue-600 text-white shadow-sm"
-      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-  }`;
-}
-
-// --- Tiket Section ---
 function TicketsSection() {
   const [ticketTab, setTicketTab] = useState<"active" | "past">("active");
 
@@ -174,9 +174,36 @@ function TicketsSection() {
   );
 }
 
-// --- Informasi Dasar Section ---
 function BasicInfo({ user }: { user: any }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phone: user.phone,
+    birthDate: user.birthDate,
+    gender: user.gender
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Here you would typically call an API to update user data
+      // await updateUserProfile(formData);
+      setIsEditing(false);
+      // Optionally show success message
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      // Optionally show error message
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -195,6 +222,7 @@ function BasicInfo({ user }: { user: any }) {
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
+              onClick={handleSubmit}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-md"
             >
               Simpan Perubahan
@@ -213,130 +241,127 @@ function BasicInfo({ user }: { user: any }) {
       </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Nama Depan
-            </label>
-            <input
-              type="text"
-              defaultValue={user.firstName}
-              className="input-field"
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Nama Belakang
-            </label>
-            <input
-              type="text"
-              defaultValue={user.lastName}
-              className="input-field"
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              defaultValue={user.email}
-              className="input-field bg-gray-100"
-              disabled
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              No. Ponsel
-            </label>
-            <input
-              type="text"
-              defaultValue={user.phone}
-              className="input-field"
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Tanggal Lahir
-            </label>
-            <input
-              type="date"
-              defaultValue={user.birthDate}
-              className="input-field"
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Jenis Kelamin
-            </label>
-            <div className="flex gap-4 mt-2">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="gender"
-                  className="h-4 w-4 text-blue-600"
-                  defaultChecked={user.gender === "Laki-laki"}
-                  disabled={!isEditing}
-                />
-                <span className="ml-2 text-gray-700">Laki-laki</span>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="firstName" className="block text-gray-700 text-sm font-medium mb-2">
+                Nama Depan
               </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="gender"
-                  className="h-4 w-4 text-blue-600"
-                  defaultChecked={user.gender === "Perempuan"}
-                  disabled={!isEditing}
-                />
-                <span className="ml-2 text-gray-700">Perempuan</span>
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                value={formData.firstName}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
+                  isEditing ? "bg-white border-gray-300" : "bg-gray-100 border-gray-200"
+                }`}
+                disabled={!isEditing}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-gray-700 text-sm font-medium mb-2">
+                Nama Belakang
               </label>
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                value={formData.lastName}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
+                  isEditing ? "bg-white border-gray-300" : "bg-gray-100 border-gray-200"
+                }`}
+                disabled={!isEditing}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={user.email}
+                className="w-full px-4 py-2 border border-gray-200 bg-gray-100 rounded-lg"
+                disabled
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-2">
+                No. Ponsel
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
+                  isEditing ? "bg-white border-gray-300" : "bg-gray-100 border-gray-200"
+                }`}
+                disabled={!isEditing}
+              />
+            </div>
+            <div>
+              <label htmlFor="birthDate" className="block text-gray-700 text-sm font-medium mb-2">
+                Tanggal Lahir
+              </label>
+              <input
+                id="birthDate"
+                name="birthDate"
+                type="date"
+                value={formData.birthDate}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
+                  isEditing ? "bg-white border-gray-300" : "bg-gray-100 border-gray-200"
+                }`}
+                disabled={!isEditing}
+              />
+            </div>
+            <div>
+              <label htmlFor="gender" className="block text-gray-700 text-sm font-medium mb-2">
+                Gender
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 ${
+                  isEditing ? "bg-white border-gray-300" : "bg-gray-100 border-gray-200"
+                }`}
+                disabled={!isEditing}
+              >
+                <option value="">Pilih Gender</option>
+                <option value="male">Laki-laki</option>
+                <option value="female">Perempuan</option>
+              </select>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
 }
 
-// --- Pengaturan Section ---
 function Settings() {
   return (
     <div className="max-w-4xl mx-auto">
-      <h3 className="text-3xl font-bold mb-6 text-gray-800">Pengaturan</h3>
-      
-      <div className="bg-white rounded-xl shadow-md overflow-hidden p-8">
-        <div className="flex flex-col items-center text-center py-12">
-          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-            <i className="fas fa-cog text-3xl text-blue-600"></i>
-          </div>
-          <h4 className="text-xl font-semibold text-gray-800 mb-2">
-            Fitur Pengaturan Sedang Dalam Pengembangan
-          </h4>
-          <p className="text-gray-500 max-w-md mb-6">
-            Kami sedang bekerja untuk menghadirkan pengalaman pengaturan yang lebih
-            lengkap dan personal untuk Anda.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium shadow-md"
-          >
-            Beri Kami Masukan
-          </motion.button>
-        </div>
+      <h3 className="text-3xl font-bold text-gray-800 mb-6">Pengaturan</h3>
+      <div className="bg-white rounded-xl shadow-md p-8">
+        <p className="text-gray-500">Belum ada pengaturan tambahan.</p>
       </div>
     </div>
   );
 }
 
-// Custom input field style
-const inputField = `
-  w-full px-4 py-3 rounded-lg border border-gray-300 
-  focus:outline-none focus:ring-2 focus:ring-blue-500 
-  focus:border-transparent transition-all
-  disabled:bg-gray-100 disabled:text-gray-500
-`;
+function subTabStyle(active: boolean) {
+  return `px-4 py-2 rounded-lg font-medium transition ${
+    active 
+      ? "bg-blue-600 text-white" 
+      : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+  }`;
+}

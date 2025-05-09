@@ -19,6 +19,7 @@ export default function Navbar() {
 
   // Ambil data user saat mounting jika token tersedia
   useEffect(() => {
+    
     const token = getAuthCookie().token;
     if (token) {
       const fetchProfile = async () => {
@@ -91,13 +92,13 @@ export default function Navbar() {
           <Link href="/" className="text-white hover:underline">
             Home
           </Link>
-          <Link href="/pages/events" className="text-white hover:underline">
+          <Link href="/events" className="text-white hover:underline">
             Events
           </Link>
-          <Link href="/pages/about" className="text-white hover:underline">
+          <Link href="/about" className="text-white hover:underline">
             About
           </Link>
-          <Link href="/pages/contact" className="text-white hover:underline">
+          <Link href="/contact" className="text-white hover:underline">
             Contact
           </Link>
 
