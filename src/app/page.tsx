@@ -14,7 +14,7 @@ export default function Home() {
       <Navbar />
 
       {/* Main Container */}
-      <div className="min-h-screen pt-9 pb-20 bg-white">
+      <div className="min-h-screen pt-25 pb-20 bg-white">
         {" "}
         {/* tambahkan pb-20 di sini */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

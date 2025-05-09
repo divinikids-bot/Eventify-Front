@@ -16,6 +16,7 @@ export default function PagePromotor() {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [eventList, setEventList] = useState<EventList[]>([]);
+  const [editingEvent, setEditingEvent] = useState<EventList | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const { getEventsByPromotor, deleteEvent } = useEvent();
   const [loading, setLoading] = useState(false);
@@ -138,12 +139,15 @@ export default function PagePromotor() {
 
         {showForm && (
           <CreateEventForm
+            initialData={editingEvent}
             onCancel={() => {
-              console.log("Closing form");
               setShowForm(false);
+              setEditingEvent(null);
             }}
             onCreated={() => {
-              fetchEvents(); // Hanya refresh data
+              fetchEvents();
+              setShowForm(false);
+              setEditingEvent(null);
             }}
           />
         )}
@@ -194,7 +198,13 @@ export default function PagePromotor() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
-                        <button className="text-blue-600 hover:text-blue-900 mr-4">
+                        <button
+                          className="text-blue-600 hover:text-blue-900 mr-4"
+                          onClick={() => {
+                            setEditingEvent(event); // kirim data event ke form
+                            setShowForm(true);
+                          }}
+                        >
                           Ubah
                         </button>
                         <button
