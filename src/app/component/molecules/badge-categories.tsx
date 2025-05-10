@@ -16,7 +16,7 @@ export default function CategoriesBadge() {
       {categories.map((category) => (
         <Link
           key={category.key}
-          href={`/categories/${encodeURIComponent(category.key)}`}
+          href={`/events`}
           className="flex flex-col items-center space-y-3"
         >
           <div className="flex items-center justify-center w-24 h-24 rounded-full border border-gray-200 hover:shadow-md transition duration-300">

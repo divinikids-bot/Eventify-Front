@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -57,7 +55,7 @@ export default function EventPilihan() {
               <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-300 hover:shadow-xl transition duration-300">
                 <div className="relative w-full h-[200px]">
                   <Image
-                    src={events.imageUrl || "/placeholder.svg"}
+                    src={events.imgUrl || "/placeholder.svg"}
                     alt={events.nameEvents}
                     fill
                     className="object-cover"

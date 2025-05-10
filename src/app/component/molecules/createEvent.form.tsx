@@ -243,7 +243,7 @@ export default function CreateEventForm({
           <div className="flex gap-4 justify-center">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
               disabled={loading}
             >
               {loading ? "Loading..." : "Submit"}
@@ -251,7 +251,7 @@ export default function CreateEventForm({
             <button
               type="button"
               onClick={onCancel}
-              className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 cursor-pointer"
             >
               Cancel
             </button>
