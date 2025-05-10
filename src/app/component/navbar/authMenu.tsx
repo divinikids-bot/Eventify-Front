@@ -31,7 +31,7 @@ export default function AuthMenu({
         aria-expanded={dropdownOpen}
       >
         <Image
-          src={user?.image || "/profile.jpg"}
+          src={user?.image || "/profileblank.svg"}
           alt="Profile"
           width={36}
           height={36}
@@ -43,7 +43,7 @@ export default function AuthMenu({
       {dropdownOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
           <Link
-            href="/pages/dashboard/user"
+            href="/dashboard/user"
             className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
           >
             Profile
