@@ -20,8 +20,8 @@ export interface EventCreatePayload {
   endDateEvents: string;
   availableSeats: number;
   couponds?: Coupond[];
-  promotor?: Promotor;
-  imageUrl?: string;
+  promotor?: Promotor[];
+  imgUrl?: string;
 }
 
 export interface EventList {

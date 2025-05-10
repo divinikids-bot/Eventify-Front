@@ -1,7 +1,6 @@
-
 import Navbar from "@/app/component/navbar";
 import Footer from "@/app/component/molecules/footer.module";
-import { api } from "@/app/lib/axios"; 
+import { api } from "@/app/lib/axios";
 import { EventCreatePayload } from "@/types/event.model";
 import { useEvent } from "@/utils/useEvent";
 
@@ -9,12 +8,12 @@ interface EventDetailPageProps {
   params: { id: string };
 }
 
-export default async function EventDetailPage({ params }: EventDetailPageProps) {
+export default async function EventDetailPage({
+  params,
+}: EventDetailPageProps) {
   const eventId = parseInt(params.id);
-  const { getAllEvent } = useEvent();
-
-  console.log("====Params ID====", params.id);
-
+  const { getEventDetail } = useEvent();
+  const data = await getEventDetail(Number(params.id));
 
   if (isNaN(eventId) || eventId <= 0) {
     return (
@@ -26,92 +25,118 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     );
   }
 
-  try {
-    const res = await api.get(`/events/${eventId}`)
-    const rawEvent = res.data;
-    const event: EventCreatePayload = {
-      ...res.data,
-      imageUrl: rawEvent.imgUrl,
-    };
-    console.log("==== Response Data ====", res.data);
+  const res = await api.get(`/events/${eventId}`);
+  const rawEvent = res.data;
 
+  const event: EventCreatePayload = {
+    ...rawEvent,
+    imageUrl: rawEvent.imgUrl,
+  };
 
-    const startDate = new Date(event.startDateEvents);
-    const endDate = new Date(event.endDateEvents);
+  const startDate = new Date(event.startDateEvents);
+  const endDate = new Date(event.endDateEvents);
 
-    const formattedStartDate = startDate.toLocaleDateString("id-ID", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  const formattedStartDate = startDate.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  console.log("startdate >> ", startDate);
 
-    const formattedStartTime = startDate.toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const formattedStartTime = startDate.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-    const formattedEndDate = endDate.toLocaleDateString("id-ID", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  const formattedEndDate = endDate.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
-    const formattedEndTime = endDate.toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const formattedEndTime = endDate.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-    return (
-      <div className="min-h-screen flex flex-col pt-20 bg-white text-gray-800">
-        <Navbar />
-        <div className="container mx-auto py-6 px-4">
-          {event.imageUrl && (
-            <img
-              src={event.imageUrl&& event.imageUrl !== "" ? event.imageUrl : "/logofinale.png"}
-              alt={event.nameEvents || "Event Image"}
-              className="w-full h-64 object-cover rounded-lg mb-6"
-            />
-          )}
-          <h1 className="text-3xl font-bold mb-2">{event.nameEvents}</h1>
-          <p className="text-gray-500 mb-1">Event ID: {eventId}</p>
-          <p className="text-gray-600 mb-1">📍 {event.locationEvents}</p>
-          <p className="text-gray-600 mb-1">
-            📅 {formattedStartDate} - 🕒 {formattedStartTime}
-          </p>
-          {startDate.toDateString() !== endDate.toDateString() && (
-            <p className="text-gray-600 mb-1">
-              Sampai: 📅 {formattedEndDate} - 🕒 {formattedEndTime}
-            </p>
-          )}
-          <p className="text-lg font-semibold text-yellow-600 mb-3">
-            Rp{Number(event.priceEvents).toLocaleString("id-ID")}
-          </p>
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold mb-2">Deskripsi Event</h2>
-            <p className="whitespace-pre-line">{event.descriptionEvents}</p>
+  return (
+    <div className="w-screen min-h-screen flex flex-col pt-20 bg-white text-gray-800">
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* KIRI: Gambar + Deskripsi */}
+          <div className="md:col-span-2">
+            {data.imgUrl && (
+              <img
+                src={data.imgUrl !== "" ? data.imgUrl : "/logofinale.png"}
+                alt={data.nameEvents || "Event Image"}
+                className="w-full max-h-[500px] object-contain rounded-lg mb-6"
+              />
+            )}
+
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">Deskripsi Event</h2>
+              <p className="whitespace-pre-line text-gray-700 leading-relaxed">
+                {data.descriptionEvents}
+              </p>
+            </div>
           </div>
-          <div className="border-t pt-4 mt-6">
-            <h2 className="text-xl font-semibold mb-2">Kategori: {event.categoryEvents}</h2>
-            <p className="text-gray-600">Tersedia: {event.availableSeats} kursi</p>
-            <p className="text-gray-600">Organizer: {event.promotor?.usersId ?? "Tidak diketahui"}</p>
+
+          {/* KANAN: Info Event + Card Beli Tiket */}
+          <div className="flex flex-col gap-6">
+            {/* Info Event */}
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h1 className="text-2xl font-bold mb-2">{data.nameEvents}</h1>
+              <p className="text-sm text-gray-600 mb-1">
+                📍 {data.locationEvents}
+              </p>
+              <p className="text-sm text-gray-600 mb-1">
+                📅 {formattedStartDate} - 🕒 {formattedStartTime}
+              </p>
+              {startDate.toDateString() !== endDate.toDateString() && (
+                <p className="text-sm text-gray-600 mb-1">
+                  Sampai: 📅 {formattedEndDate} - 🕒 {formattedEndTime}
+                </p>
+              )}
+              <p className="text-sm text-gray-600">
+                Kategori: {data.categoryEvents}
+              </p>
+              <p className="text-sm text-gray-600">
+                Kursi tersedia: {data.availableSeats}
+              </p>
+            </div>
+
+            {/* Beli Tiket */}
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h3 className="text-lg font-semibold mb-4">Beli Tiket</h3>
+              <p>Harga</p>
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-yellow-500 font-bold text-xl">
+                  Rp{Number(data.priceEvents).toLocaleString("id-ID")}
+                </p>
+              </div>
+              <button className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Beli Tiket
+              </button>
+
+              <div className="mt-6 flex justify-center gap-4 text-gray-600">
+                <button className="hover:text-blue-600">
+                  <i className="fab fa-facebook-f"></i>
+                </button>
+                <button className="hover:text-blue-600">
+                  <i className="fab fa-twitter"></i>
+                </button>
+                <button className="hover:text-blue-600">
+                  <i className="fas fa-share-alt"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        
-
-        <Footer />
       </div>
-    );
-  } catch (error: any) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Navbar />
-        <main className="container mx-auto p-4">
-          <p className="text-red-600">Event tidak ditemukan atau terjadi kesalahan</p>
-        </main>
-        {/* <Footer /> */}
-      </div>
-    );
-  }
+      <Footer />
+    </div>
+  );
 }

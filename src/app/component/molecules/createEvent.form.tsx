@@ -8,27 +8,32 @@ import { api } from "@/app/lib/axios";
 import { useRouter } from "next/navigation";
 
 // === Props Interface ===
-interface CreateEventFormProps {
+export interface CreateEventFormProps {
   onCancel: () => void;
   onCreated?: () => void;
+  initialData?: any | null; // Replace 'any' with the correct type if known
+  eventData?: EventCreatePayload & { id: string }; // tambahkan id untuk update
 }
 
 // === Main Component ===
 export default function CreateEventForm({
   onCancel,
   onCreated,
+  eventData,
 }: CreateEventFormProps) {
   const router = useRouter();
-  const [formData, setFormData] = useState<EventCreatePayload>({
-    nameEvents: "",
-    categoryEvents: "MUSIC",
-    priceEvents: "",
-    descriptionEvents: "",
-    locationEvents: "JAKARTA",
-    startDateEvents: "",
-    endDateEvents: "",
-    availableSeats: 0,
-  });
+  const [formData, setFormData] = useState<EventCreatePayload>(
+    eventData || {
+      nameEvents: "",
+      categoryEvents: "MUSIC",
+      priceEvents: "",
+      descriptionEvents: "",
+      locationEvents: "JAKARTA",
+      startDateEvents: "",
+      endDateEvents: "",
+      availableSeats: 0,
+    }
+  );
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [couponCode, setCouponCode] = useState("");
@@ -101,36 +106,49 @@ export default function CreateEventForm({
     }
 
     try {
-      const res = await api.post("/create-events", form, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      let res;
+      if (eventData) {
+        // EDIT
+        res = await api.put(`/events/${eventData.id}`, form, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } else {
+        // CREATE
+        res = await api.post("/create-events", form, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
 
       if (!res.data.success) {
-        toast.error("Gagal membuat event.");
+        toast.error("Gagal memproses event.");
         setLoading(false);
         return;
       }
-      toast.success("Event berhasil dibuat!");
+
+      toast.success(
+        eventData ? "Event berhasil diperbarui!" : "Event berhasil dibuat!"
+      );
       setLoading(false);
-      onCancel(); // Tutup form
+      onCancel();
       if (onCreated) {
-        await new Promise((resolve) => setTimeout(resolve, 200)); // Jeda kecil
+        await new Promise((resolve) => setTimeout(resolve, 200));
         onCreated();
       }
     } catch (err) {
       console.error(err);
-      toast.error("Terjadi kesalahan saat membuat event.");
-    } finally {
-      setLoading(false);
+      toast.error("Terjadi kesalahan saat memproses event.");
     }
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={onCancel}
     >
       <div
@@ -144,7 +162,7 @@ export default function CreateEventForm({
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-2xl font-semibold text-center mb-4">
-            Create Event
+            {eventData ? "Edit Event" : "Create Event"}
           </h2>
 
           <Input
@@ -207,8 +225,6 @@ export default function CreateEventForm({
               e.target.files && setImageFile(e.target.files[0])
             }
           />
-
-          {/* Optional Coupons */}
           <Input
             label="Coupon Code (opsional)"
             value={couponCode}
@@ -224,11 +240,10 @@ export default function CreateEventForm({
               setCouponDiscount(Number(e.target.value))
             }
           />
-
           <div className="flex gap-4 justify-center">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
               disabled={loading}
             >
               {loading ? "Loading..." : "Submit"}
@@ -236,7 +251,7 @@ export default function CreateEventForm({
             <button
               type="button"
               onClick={onCancel}
-              className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 cursor-pointer"
             >
               Cancel
             </button>

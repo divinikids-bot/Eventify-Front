@@ -7,7 +7,6 @@ import { EventCreatePayload } from "@/types/event.model";
 import Navbar from "@/app/component/navbar";
 import Footer from "@/app/component/molecules/footer.module";
 
-
 enum Category {
   MUSIC = "MUSIC",
   SPORTS = "SPORTS",
@@ -17,7 +16,9 @@ enum Category {
 
 export default function EventsPage() {
   const [events, setEvents] = useState<EventCreatePayload[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<EventCreatePayload[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<EventCreatePayload[]>(
+    []
+  );
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [priceOrder, setPriceOrder] = useState("");
@@ -31,12 +32,14 @@ export default function EventsPage() {
     async function fetchEvents() {
       try {
         const result = await getAllEvent();
-        console.log("Fetched events:", result); // Log the result to debug
+        console.log("Fetched events:", result);
         setEvents(result);
         setFilteredEvents(result);
 
         // Log unique locations for debugging
-        const uniqueLocations = Array.from(new Set(result.map((e) => e.locationEvents)));
+        const uniqueLocations = Array.from(
+          new Set(result.map((e) => e.locationEvents))
+        );
         console.log("Unique Locations:", uniqueLocations); // Ensure all locations are fetched
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -46,9 +49,10 @@ export default function EventsPage() {
   }, []);
 
   // Combine the enum categories with the event categories, but avoid duplicates
-  const eventCategories = events.length > 0
-    ? Array.from(new Set(events.map((e) => e.categoryEvents)))
-    : [];
+  const eventCategories =
+    events.length > 0
+      ? Array.from(new Set(events.map((e) => e.categoryEvents)))
+      : [];
 
   console.log("Available event categories:", eventCategories); // Log available categories for debugging
 
@@ -57,7 +61,9 @@ export default function EventsPage() {
     Category.SPORTS,
     Category.FOOD,
     Category.BEAUTY,
-    ...eventCategories.filter((cat) => !Object.values(Category).includes(cat as Category)),
+    ...eventCategories.filter(
+      (cat) => !Object.values(Category).includes(cat as Category)
+    ),
   ];
 
   console.log("Categories for filter:", categories); // Log selected categories
@@ -80,7 +86,9 @@ export default function EventsPage() {
     }
 
     if (selectedLocation) {
-      filtered = filtered.filter((event) => event.locationEvents === selectedLocation);
+      filtered = filtered.filter(
+        (event) => event.locationEvents === selectedLocation
+      );
     }
 
     if (priceOrder === "asc") {
@@ -189,32 +197,49 @@ export default function EventsPage() {
         {/* Event List */}
         <section className="flex-1">
           <h1 className="text-3xl font-bold mb-2">Discover Events</h1>
-          <p className="mb-6 text-gray-600">Find and join exciting events happening around you</p>
+          <p className="mb-6 text-gray-600">
+            Find and join exciting events happening around you
+          </p>
 
           {filteredEvents.length === 0 ? (
             <p>Loading...</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
               {paginatedEvents.map((event) => (
                 <div
                   key={event.eventId}
-                  className="bg-white rounded-lg shadow-md p-4 flex flex-col justify-between"
+                  className="bg-white rounded-lg shadow-md p-4 flex flex-col justify-between "
                 >
                   <div>
-                    <div className="h-32 bg-gray-200 mb-3 rounded" />
+                    {event.imgUrl ? (
+                      <img
+                        src={event.imgUrl}
+                        alt={event.nameEvents}
+                        className="h-32 w-full object-cover rounded mb-3"
+                      />
+                    ) : (
+                      <div className="h-32 bg-gray-200 mb-3 rounded " />
+                    )}
+
                     <p className="text-sm text-gray-500">
                       {event.startDateEvents} | {event.locationEvents}
                     </p>
                     <span className="inline-block bg-yellow-300 text-xs font-semibold text-black px-2 py-1 mt-2 rounded">
                       {event.categoryEvents}
                     </span>
-                    <h3 className="mt-2 font-bold text-lg">{event.nameEvents}</h3>
-                    <p className="text-sm text-gray-700 line-clamp-2">{event.descriptionEvents}</p>
+                    <h3 className="mt-2 font-bold text-lg">
+                      {event.nameEvents}
+                    </h3>
+                    <p className="text-sm text-gray-700 line-clamp-2">
+                      {event.descriptionEvents}
+                    </p>
                   </div>
-                  <div className="mt-3 flex justify-between items-center">
-                    <p className="font-bold text-md">Rp{Number(event.priceEvents).toLocaleString()}</p>
+                  <div className="mt-3 flex justify-between items-center ">
+                    <p className="font-bold text-md">
+                      Rp{Number(event.priceEvents).toLocaleString()}
+                    </p>
                     <button
-                      className="bg-yellow-400 hover:bg-yellow-500 text-sm px-3 py-1 rounded font-semibold"
+                      className="bg-yellow-400 hover:bg-yellow-500 text-sm px-3 py-1 rounded font-semibold cursor-pointer"
                       onClick={() => router.push(`/events/${event?.eventId}`)}
                     >
                       Get Ticket

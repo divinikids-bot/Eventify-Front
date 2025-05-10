@@ -6,8 +6,9 @@ import axios from 'axios';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { api } from '@/app/lib/axios';
 
-const VALID_CATEGORIES = ['music', 'sport', 'food', 'beauty'];
+const VALID_CATEGORIES = ['MUSIC', 'SPORTS', 'Food', 'BEAUTY'];
 
 interface Event {
   eventId: number;
